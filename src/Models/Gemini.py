@@ -43,13 +43,12 @@ class Gemini(Model):
 
     def run(self, prompt:str)->str:
         response = self.client.generate_content(prompt).candidates[0]
-        if not (self.model.__contains__("thinking")):
-            return response.content.parts[0].text
         
+        if self.model.__contains__("thinking"):
+            return f'''<thought>{response.content.parts[0].text}</thought>
+                    <output>{response.content.parts[1].text}</output>'''
         else:
-            # TODO: adjust the output to follow the signature of the function
-            return {"thought": response.content.parts[0].text,
-                    "response": response.content.parts[1].text}
+            return response.content.parts[0].text
 
     def set_temperature(self, temperature: float):
         self.temperature = temperature
