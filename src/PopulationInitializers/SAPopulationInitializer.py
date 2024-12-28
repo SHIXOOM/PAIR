@@ -1,11 +1,11 @@
 import tsplib95
 from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
 import random
-import np
+import numpy as np
 
 class SAPopulationInitializer(PopulationInitializer):
 
-    def initialize(self, population_size: int, problem: tsplib95.models.StandardProblem) -> list[list]:
+    def initialize(self, population_size: int, problem: tsplib95.models.StandardProblem) -> list[tuple[list,int]]:
         self.problem = problem
 
         """Initialize population using Simulated Annealing with variable cooling rates."""
@@ -14,8 +14,8 @@ class SAPopulationInitializer(PopulationInitializer):
         
         for _ in range(population_size):
             cooling_rate = random.uniform(*cooling_rate_range)
-            solution, _ = self._simulated_annealing(cooling_rate=cooling_rate)
-            population.append(solution)
+            tour, length = self._simulated_annealing(cooling_rate=cooling_rate)
+            population.append((tour,length))
             
         return population
 

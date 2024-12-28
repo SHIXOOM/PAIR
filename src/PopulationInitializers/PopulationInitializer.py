@@ -8,6 +8,6 @@ class PopulationInitializer(ABC):
     """
 
     @abstractmethod
-    def initialize(self, population_size: int, problem: tsplib95.models.StandardProblem) -> list[list]:
+    def initialize(self, population_size: int, problem: tsplib95.models.StandardProblem) -> list[tuple[list,int]]:
         """ Initializes a population of chromosomes. """
         pass
