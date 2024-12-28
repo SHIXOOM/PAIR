@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     population_size = 30
     initial_temperature = 1000
-    cooling_rate_range = (0.95, 0.99)  # Define a range for the cooling rate
+    cooling_rate_range = (0.90, 0.99)  # Define a range for the cooling rate
     max_iterations = 1000
 
     population = initialize_population_with_sa(distance_matrix, population_size, initial_temperature, cooling_rate_range, max_iterations)
