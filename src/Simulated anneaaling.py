@@ -49,15 +49,18 @@ def initialize_population_with_sa(distance_matrix, population_size, initial_temp
     return population
 
 # Example usage
-num_cities = 15
-distance_matrix = np.random.rand(num_cities, num_cities) * 100  # Random distance matrix for demonstration
-population_size = 30
-initial_temperature = 1000
-cooling_rate = 0.99
-max_iterations = 1000
+if __name__ == "__main__":
+    num_cities = 15
+    distance_matrix = np.random.rand(num_cities, num_cities) * 100  # Random distance matrix for demonstration
+    distance_matrix = (distance_matrix + distance_matrix.T) / 2  # Make sure the matrix is symmetric
+    np.fill_diagonal(distance_matrix, 0)  # Distance from a city to itself is zero
 
-population = initialize_population_with_sa(distance_matrix, population_size, initial_temperature, cooling_rate, max_iterations)
+    population_size = 30
+    initial_temperature = 1000
+    cooling_rate = 0.99
+    max_iterations = 1000
 
-for i, (solution, cost) in enumerate(population):
-    print(f"Solution {i+1}: {solution} with cost {cost}")
-    
+    population = initialize_population_with_sa(distance_matrix, population_size, initial_temperature, cooling_rate, max_iterations)
+
+    for i, (solution, cost) in enumerate(population):
+        print(f"Solution {i+1}: {solution} with cost {cost}")
