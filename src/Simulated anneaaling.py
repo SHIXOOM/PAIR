@@ -80,21 +80,3 @@ class ExampleSolver1(LLMTSPSolver):
             print(f"Solution {i+1}: {solution} with cost {cost}")
 
         return population
-
-# Example usage
-if __name__ == "__main__":
-    model = Model()  # Assuming Model is defined elsewhere
-    solver = ExampleSolver1(model)
-
-    num_cities = 15
-    distance_matrix = np.random.rand(num_cities, num_cities) * 100  # Random distance matrix for demonstration
-    distance_matrix = (distance_matrix + distance_matrix.T) / 2  # Make sure the matrix is symmetric
-    np.fill_diagonal(distance_matrix, 0)  # Distance from a city to itself is zero
-
-    problem = {
-        'distance_matrix': distance_matrix,
-        'population_size': 30,
-        'num_cities': num_cities
-    }
-
-    solver.solve(problem)
