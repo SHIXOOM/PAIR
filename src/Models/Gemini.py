@@ -1,9 +1,13 @@
 from src.Models.Model import Model
 import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+
 from IPython.display import display, Markdown
 import webbrowser
 import tempfile
-import os
+
+
 
 class Gemini(Model):
     """
@@ -11,6 +15,9 @@ class Gemini(Model):
     """
     def __init__(self, system_prompt:str, temperature: float, model = "gemini-2.0-flash-thinking-exp-1219"):
         super().__init__(system_prompt, temperature)
+        
+        # Load environment variables
+        load_dotenv()
         
         self.model = model
         
@@ -24,13 +31,13 @@ class Gemini(Model):
             }
         
         # Initialize Gemini Client
-        genai.configure(api_key="AIzaSyBoO1cyzprH9j3RF1Uv20qAhDbvBRgle5k")
+        
+        genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
         self.client = genai.GenerativeModel(
             model_name = self.model,
             generation_config = self.generation_config,
             system_instruction = system_prompt
             )
-        
         # Initialize Gemini Model Message
         print(f"Gemini created with system_prompt: {system_prompt} and temperature: {temperature}")
 
