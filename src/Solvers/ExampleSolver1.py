@@ -1,16 +1,16 @@
 from src.Solvers.LLMTSPSolver import LLMTSPSolver
 from src.Models.Model import Model
+from src.PopulationInitializers import SAPopulationInitializer, PopulationInitializer
 
 class ExampleSolver1(LLMTSPSolver):
-    """
-    Example concrete implementation of the LLMTSPSolver class
-    TODO: Remove. Not an actual implementation
-    """
-
-    def __init__(self, model: Model):
-        super().__init__(model)
+    def __init__(self, model: Model, population_initializer: PopulationInitializer):
+        super().__init__(model, population_initializer)
+        self.population_initializer = population_initializer
         print(f"Solver created with model: {model}")
 
     def solve(self, problem):
-        print("Solving problem:", problem)
-        return "solution"
+        
+
+        population = self.population_initializer.initialize(30, problem)
+         
+        print(f"ExampleSolver1 solving problem with initial population: ",population)
