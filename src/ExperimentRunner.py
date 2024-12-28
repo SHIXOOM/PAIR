@@ -1,4 +1,5 @@
 from src.Solvers.LLMTSPSolver import LLMTSPSolver
+from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
 from src.DataManager import DataManger
 from src.Models.Model import Model
 
@@ -8,7 +9,8 @@ class ExperimentRunner:
                 problem_name:str,
                 problem_file_path:str,
                 solver: LLMTSPSolver,
-                model:Model):
+                model:Model,
+                ):
 
         # initialize member variables
         self.solver = solver
@@ -25,5 +27,5 @@ class ExperimentRunner:
         print("running experiment")
 
         # run the solver
-        self.solver.solve(self.problem_name)
+        self.solver.solve(self.problem)
         print("experiment finished")
