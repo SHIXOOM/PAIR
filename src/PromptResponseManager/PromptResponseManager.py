@@ -1,3 +1,5 @@
+import re
+
 class PromptResponseManager:
     """
     A static class to manage prompt templates and generation
@@ -154,27 +156,90 @@ class PromptResponseManager:
     
     @staticmethod
     def getInitialPopulationPrompt(points: dict) -> str:
+        # TODO: Create the prompt, check LMEA's prompt for reference
         pass
     
     @staticmethod
-    def parseInitialPopulationResponse(response: str, nodeCount: int) -> list[str]:
-        pass
+    def parseInitialPopulationResponse(response: str, nodeCount: int) -> list[list[int]]:
+        return PromptResponseManager.parseNewGeneration(response, nodeCount)
     
     @staticmethod
-    def parseNewGeneration(response: str, nodeCount: int) -> list[str]:
-        pass
+    def parseNewGeneration(response: str, nodeCount: int) -> list[list[int]]:
+        """Find all traces in the response -> list of lists,
+        Each list is a trace, each element is an integer, which is a point
+
+        Example output:
+        [[0, 1, 2, 3, 4, 5, 6, 7],
+        [2, 6, 4, 0, 5, 7, 1, 3],
+        [2, 6, 5, 3, 4, 7, 1, 0],
+        [2, 6, 5, 4, 3, 0, 7, 1]]
+        """
+        
+        # Find all traces in the response -> list of strings, each string is a trace
+        tracesStrings = re.findall(r'<trace>(.*?)</trace>', response)
+        # Convert each trace string into a list of integers -> each integer is a point
+        traces = [list(map(lambda pointChar: int(pointChar), traceString.split(','))) for traceString in tracesStrings]
+        return traces
+    
+    @staticmethod
+    def parseSelectedTraces(response: str) -> list[list[str]]:
+        """Find all trace pairs selected for mating -> list of lists
+        Each list is a trace pair
+        
+        
+        Example output:
+        [['5,2,6,4,3,7,1,8,9,0', '4,3,1,9,0,7,6,8,5,2'],
+        ['5,2,6,4,3,7,1,8,9,0', '9,0,5,8,7,3,6,4,2,1'],
+        ['5,2,6,4,3,7,1,8,9,0', '9,0,2,5,8,4,6,3,1,7']]
+        """
+        
+        # Find all traces selected for mating -> list of strings, each string is a trace
+        selectedTraces = re.findall(r'<sel>(.*?)</sel>', response)
+        # Pair each two traces together (pairwise traces are the ones who mated in each iteration) -> list of lists, each list is a pair of traces
+        pairTraces = [list([selectedTraces[i], selectedTraces[i+1]]) for i in range(0, len(selectedTraces), 2)]
+        return pairTraces
+        
+    @staticmethod
+    def parseCrossoverMethods(response: str) -> list[tuple[str, str]]:
+        """Find all crossover methods and the trace resulted from the crossover -> list of tuples
+        Each tuple is a crossover method and the trace resulted from the crossover
+        
+        Example output:
+        [('PMX (Partially Mapped Crossover)','4,3,6,8,9,7,1,5,2,0'),
+        ('OX (Ordered Crossover)', '5,2,6,4,3,7,8,9,0,1'),
+        ('PMX (Partially Mapped Crossover)', '9,0,6,4,3,7,1,8,5,2')]"""
+        
+        # Find all crossover methods and the trace resulted from the crossover -> list of tuples
+        selectedCrossoversAndTraceResulted = re.findall(r'<c>(.*?)</c><cross>(.*?)</cross>', response)
+        return selectedCrossoversAndTraceResulted
+    
+    @staticmethod
+    def parseMutationMethods(response: str) -> set[tuple[str, int]]:
+        """Find all mutation methods used in the iteration and the count of uses of each mutation method -> set of tuples
+        Each tuple is a mutation method and the count of usages in the iteration
+        Example output: 
+        {('Insert Mutation', 5),
+        ('Inversion Mutation', 5),
+        ('Swap Mutation', 6)}"""
+        
+        # Find all mutation methods used in the iteration -> list of strings, each string is a mutation method
+        selectedMutations = re.findall(r'<m>(.*?)</m>', response)
+        # Pair each mutation method with its count of usages -> set of tuples
+        selectedMutationsAndCounts = set((selectedMutation, selectedMutations.count(selectedMutation)) for selectedMutation in selectedMutations)
+        return selectedMutationsAndCounts
+        
     
     @staticmethod
     def parseThoughts(response: str) -> str:
+        thoughts = re.findall(r'<thought>(.*?)</thought>', response)
+        return thoughts
+    
+    @staticmethod
+    def validateTrace(trace: list[int], points: dict, nodeCount: int) -> bool:
         pass
     
     @staticmethod
-    def parseCrossoverMethods(response: str) -> set[str]:
+    def fixTrace(trace: list[int], points: dict, nodeCount: int) -> list[int]:
         pass
-    
-    @staticmethod
-    def parseMutationMethods(response: str) -> set[str]:
-        pass
-    
     
 print(PromptResponseManager.getSystemPrompt())
