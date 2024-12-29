@@ -105,7 +105,7 @@ class PromptResponseManager:
         return prompt
     
     @staticmethod
-    def getCrossoverPrompt() -> str:
+    def getCrossoverPrompt() -> tuple[str, str]:
         crossoverOperatorsExplanation = '''There are 2 different crossover operators you can use:
                 1. **PMX (Partially Mapped Crossover):**
                     - **Description:** PMX randomly selects a segment from parent 1, copies it to the offspring, and fills in the remaining positions of the offspring by mapping elements from parent 2.
@@ -130,7 +130,7 @@ class PromptResponseManager:
         return crossoverOperatorsExplanation, crossoverOperatorsInstruction
     
     @staticmethod
-    def getMutationPrompt() -> str:
+    def getMutationPrompt() -> tuple[str, str]:
         mutationOperatorsExplanation = '''There are 3 different mutation operators you can use:
                 1. **Swap Mutation:**
                     - **Description:** swap mutation randomly selects two positions in an individual and swaps the elements at those two positions.
@@ -156,7 +156,7 @@ class PromptResponseManager:
         return mutationOperatorsExplanation, mutationOperatorsInstruction
     
     @staticmethod
-    def getInitialPopulationPrompt(points: dict, populationSize: int) -> str:
+    def getInitialPopulationPrompt(points: dict, populationSize: int) -> tuple[str, str]:
         systemPrompt = f'''**You are an evolutionary computing expert for the Traveling Salesman Problem.**
         You are given a list of points with coordinates in a 2-Dimensional plane.
         You are asked to generate {populationSize} new traces given a set of points with coordinates.
@@ -256,7 +256,7 @@ class PromptResponseManager:
         
     
     @staticmethod
-    def parseThoughts(response: str) -> str:
+    def parseThoughts(response: str) -> list[str]:
         thoughts = re.findall(r'<thought>(.*?)</thought>', response)
         return thoughts
     
