@@ -8,7 +8,7 @@ class PromptResponseManager:
     # region public methods
 
     @staticmethod
-    def getSystemPrompt(tinder: bool = False, selfHints: str = '', populationSize: int = 30) -> str:
+    def getSystemPrompt(selfHints: str = '', populationSize: int = 30) -> str:
         # get default crossover and mutation prompt and instructions for them
         crossoverPrompt, crossoverInstruction = PromptResponseManager.getCrossoverPrompt()
         mutationPrompt, mutationInstruction = PromptResponseManager.getMutationPrompt()
@@ -57,9 +57,9 @@ class PromptResponseManager:
         return prompt
     
     @staticmethod
-    def getNewGenerationPrompt(population: list[tuple[list, int]], points: dict) -> str:
+    def getNewGenerationPrompt(population: list[tuple[list, int]], points: dict, populationSize: int) -> str:
         prompt = f'''**coordinates:** {PromptResponseManager.structureCoordinates(points)}
-            **iteration number:** 30
+            **iteration number:** {populationSize}
             **traces and lengths:** {PromptResponseManager.structureTracesAndLengths(population)}
             '''
             
@@ -91,17 +91,17 @@ class PromptResponseManager:
             
     @staticmethod
     def getTinderCrossoverPrompt() -> str:
-        prompt = '''Choose one trace from the given traces, consider yourself as that trace in the current iteration, and just like tinder, try to match it with the most suitable individual from the other traces for crossover, aiming to produce an offspring with an optimized solution. Evaluate potential partners based on the following criteria:
+        prompt = '''you are a trace of on available traces, and you want to match with another trace like Tinder dating app, match yourself with the most suitable individual from the other traces for crossover, aiming to produce an offspring with an optimized solution. You can evaluate potential partners based on the following criteria, however, do not limit yourself to them solely, evaluate and pick the one that fits and complements you and your characterstics the best.:
 
-                1. **Genetic Diversity:**
-                - **Complementary Traits:** Identify individual whose genetic makeup introduces beneficial variations when combined with yours, enhancing the offspring's potential to explore new solution spaces.
+        A. **Genetic Diversity:**
+        - **Complementary Traits:** Identify individual whose genetic makeup introduces beneficial variations when combined with yours, enhancing the offspring's potential to explore new solution spaces.
 
-                2. **Fitness Level:**
-                - **High Performance:** Prioritize individuals demonstrating less lengths, indicating effective solutions to the Traveling Salesman Problem, to increase the likelihood of producing a high-quality offspring.
+        B. **Fitness Level:**
+        - **High Performance:** Prioritize individuals demonstrating less lengths, indicating effective solutions to the Traveling Salesman Problem, to increase the likelihood of producing a high-quality offspring.
 
-                3. **Crossover Compatibility:**
-                - **Effective Combination:** Assess the compatibility of your genetic representation with potential partners to ensure that the chosen crossover operator can effectively merge the genomes, maintaining valid the Traveling Salesman Problem routes.
-            '''
+        C. **Crossover Compatibility:**
+        - **Effective Combination:** Assess the compatibility of your genetic representation with potential partners to ensure that the chosen crossover operator can effectively merge the genomes, maintaining valid the Traveling Salesman Problem routes.
+        Any selected traces in a previous iteration should not be selected again.'''
         return prompt
     
     @staticmethod
@@ -277,3 +277,4 @@ class PromptResponseManager:
         return trace
         
     
+print(PromptResponseManager.getSystemPrompt())
