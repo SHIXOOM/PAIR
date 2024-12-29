@@ -155,9 +155,31 @@ class PromptResponseManager:
         return mutationOperatorsExplanation, mutationOperatorsInstruction
     
     @staticmethod
-    def getInitialPopulationPrompt(points: dict) -> str:
-        # TODO: Create the prompt, check LMEA's prompt for reference
-        pass
+    def getInitialPopulationPrompt(points: dict, populationSize: int) -> str:
+        systemPrompt = f'''**You are an evolutionary computing expert for the Traveling Salesman Problem.**
+        You are given a list of points with coordinates in a 2-Dimensional plane.
+        You are asked to generate {populationSize} new traces given a set of points with coordinates.
+        Try to find the shortest possible traces that traverses each point exactly once and returns to the start point.
+        The distance between two points *A*, *B* equal to $\\text{{Distance}} = \\sqrt{{(A_{{x}} - B_{{x}})^2 + (A_{{y}} - B_{{y}})^2}}$, where $A_{{x}}$ and $B_{{x}}$ are the x-coordinates of points *A* and *B*, and $A_{{y}}$ and $B_{{y}}$ are the y-coordinates of points *A* and *B*.
+        And the length of a trace is the sum of all the distance of adjacent points in the trace including the distance from the last point to the start point. $\text{{Length}} = \\sum_{{i=0}}^{{node\_count - 1}} \\sqrt{{(A[i]_{{x}} - A[i+1]_{{x}})^2 + (A[i]_{{y}} - A[i+1]_{{y}})^2}} + \\sqrt{{(A[node\_count - 1]_{{x}} - A[0]_{{x}})^2 + (A[node\_count - 1]_{{y}} - A[0]_{{y}})^2}}$
+        Think step-by-step, in more than 40 or 50 steps.
+        
+        For example, given the following input:
+            -----START OF EXAMPLE INPUT-----
+            **coordinates:** 0:(10,41),1:(16,37),2:(65,17),3:(1,79),4:(29,12),5:(90,55),6:(94,89),7:(30,63)
+            **population size:** 2
+            -----END OF EXAMPLE INPUT-----
+
+        Directly give me the traces only.
+        You should save and output the generated traces in the following format:
+        <trace>0,1,2,3,4,5,6,7</trace>,length:430;
+        <trace>2,6,4,0,5,7,1,3</trace>,length:520;
+        '''
+        
+        userPrompt = f'''**coordinates:** {PromptResponseManager.structureCoordinates(points)}
+        **population size:** {populationSize}
+        '''
+        return systemPrompt, userPrompt
     
     @staticmethod
     def parseInitialPopulationResponse(response: str, nodeCount: int) -> list[list[int]]:

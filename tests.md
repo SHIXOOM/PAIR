@@ -842,3 +842,312 @@ Step 3: <m>Swap Mutation</m><trace>5,2,6,4,3,7,8,1,9,0</trace>
 
 </output>
 </test4>
+
+
+<test5>
+<systemPrompt>
+**You are an evolutionary computing expert for the Traveling Salesman Problem.**
+You are given a list of points with coordinates in a 2-Dimensional plane.
+You are asked to generate {populationSize} new traces given a set of points with coordinates.
+Try to find the shortest possible traces that traverses each point exactly once and returns to the start point.
+The distance between two points *A*, *B* equal to $\\text{{Distance}} = \\sqrt{{(A_{{x}} - B_{{x}})^2 + (A_{{y}} - B_{{y}})^2}}$, where $A_{{x}}$ and $B_{{x}}$ are the x-coordinates of points *A* and *B*, and $A_{{y}}$ and $B_{{y}}$ are the y-coordinates of points *A* and *B*.
+And the length of a trace is the sum of all the distance of adjacent points in the trace including the distance from the last point to the start point. $\text{{Length}} = \\sum_{{i=0}}^{{node\_count - 1}} \\sqrt{{(A[i]_{{x}} - A[i+1]_{{x}})^2 + (A[i]_{{y}} - A[i+1]_{{y}})^2}} + \\sqrt{{(A[node\_count - 1]_{{x}} - A[0]_{{x}})^2 + (A[node\_count - 1]_{{y}} - A[0]_{{y}})^2}}$
+Think step-by-step, in more than 40 or 50 steps.
+
+For example, given the following input:
+    -----START OF EXAMPLE INPUT-----
+    **coordinates:** 0:(10,41),1:(16,37),2:(65,17),3:(1,79),4:(29,12),5:(90,55),6:(94,89),7:(30,63)
+    **population size:** 2
+    -----END OF EXAMPLE INPUT-----
+    
+You should save the generated traces in the following format:
+<trace>0,1,2,3,4,5,6,7</trace>,length:430;
+<trace>2,6,4,0,5,7,1,3</trace>,length:520;
+</systemPrompt>
+
+<message>
+**coordinates:** 0:(78,41),1:(66,45),2:(71,99),3:(11,41),4:(16,55),5:(73,68),6:(18,61),7:(35,33),8:(34,91),9:(88,68)
+**population size:** 30
+</message>
+
+<thought>
+The user wants to generate an initial population for the Traveling Salesman Problem.
+The input consists of a list of coordinates and the desired population size.
+The user wants to generate an initial population for the Traveling Salesman Problem (TSP) using evolutionary computing.
+The input consists of a list of coordinates and the desired population size.
+The output should be a list of strings, each representing a trace and its length.
+A trace is a permutation of the city indices.
+The length of a trace is the total distance traveled.
+
+Here's a plan to generate the initial population:
+1. **Parse the input coordinates:** Extract the x and y coordinates for each city. Store them in a suitable data structure.
+2. **Generate random permutations:** For each individual in the population, create a random permutation of the city indices.
+3. **Calculate the length of each trace:** For each generated permutation, calculate the total distance by summing the distances between consecutive cities in the permutation, including the return to the starting city.
+4. **Format the output:**  Format each trace and its length as a string.
+</thought>
+
+<output>
+Let's break this down into smaller, manageable steps.
+
+1. **Understanding the Goal:** The primary goal is to generate an initial population of potential solutions (traces) for the Traveling Salesman Problem. Each trace represents a possible order in which to visit all the given points. We also need to calculate the length of each trace.
+
+2. **Input Data Interpretation:** The input provides coordinates for several points. Each point is labeled with an index (0, 1, 2, etc.) and has corresponding x and y coordinates. We also have the desired `population size`.
+
+3. **Representing a Trace:** A trace can be represented as an ordered list (or permutation) of the point indices. For example, if we have points 0, 1, and 2, a valid trace could be `0,1,2` or `1,2,0`, and so on. We need to remember to return to the starting point to complete the cycle.
+
+4. **Generating Diverse Traces:**  Since this is the initial population, we want some diversity in the traces. A good way to achieve this is by generating random permutations of the city indices.
+
+5. **Calculating the Distance Between Two Points:** The formula for Euclidean distance is provided: `sqrt((x2 - x1)^2 + (y2 - y1)^2)`. We'll need a function to calculate this.
+
+6. **Calculating the Length of a Trace:**  The length is the sum of the distances between consecutive points in the trace, plus the distance from the last point back to the first.
+
+7. **Iterating to Create the Population:** We need to generate `populationSize` unique traces. For each member of the population, we will:
+    a. Create a random permutation of the city indices.
+    b. Calculate the length of this permutation (trace).
+    c. Store the trace and its length.
+
+8. **Data Structures:** We'll need a way to store the coordinates and the generated traces with their lengths. A dictionary or a list of tuples could work for the coordinates. A list of strings for the output traces seems appropriate.
+
+9. **Step-by-Step Implementation (Conceptual):**
+
+    a. **Parse the input:** Extract the coordinates from the input string. Store them in a dictionary where the key is the index and the value is a tuple of (x, y). Determine the number of cities (`node_count`).
+
+    b. **Loop for population size:** Repeat the following steps `populationSize` times.
+
+    c. **Generate a random permutation:** Create a list of city indices from 0 to `node_count - 1`. Use a shuffling algorithm (like Fisher-Yates) to randomly rearrange the order of these indices. This will be our trace.
+
+    d. **Calculate trace length:**
+        i. Initialize `total_distance` to 0.
+        ii. Iterate through the trace from the first city to the second-to-last city.
+        iii. For each pair of consecutive cities in the trace, get their coordinates from the stored coordinates.
+        iv. Calculate the distance between these two cities using the distance formula.
+        v. Add this distance to `total_distance`.
+        vi. Calculate the distance between the last city in the trace and the first city in the trace (the return trip).
+        vii. Add this final distance to `total_distance`.
+
+    e. **Format the output string:** Create a string in the specified format: `<trace>index1,index2,...,indexN</trace>,length:length_value;`.
+
+    f. **Store the generated trace string:** Add the formatted string to a list of results.
+
+10. **Example Walkthrough (Mental):** Let's say we have 3 cities: 0:(0,0), 1:(1,0), 2:(0,1), and `population size` is 1.
+
+    a. Parse: `coordinates = {0: (0, 0), 1: (1, 0), 2: (0, 1)}`, `node_count = 3`.
+
+    b. Loop (once):
+
+    c. Generate permutation:  A random permutation could be `[1, 0, 2]`.
+
+    d. Calculate length:
+        i. Distance(1, 0) = sqrt((0-1)^2 + (0-0)^2) = 1.
+        ii. Distance(0, 2) = sqrt((0-0)^2 + (1-0)^2) = 1.
+        iii. Distance(2, 1) = sqrt((1-0)^2 + (0-1)^2) = sqrt(2).
+        iv. `total_distance` = 1 + 1 + sqrt(2) approx 3.414. *Correction: The return trip is from the last to the first.*
+
+    d. Calculate length (Corrected):
+        i. Distance(1, 0): sqrt((0-1)^2 + (0-0)^2) = 1
+        ii. Distance(0, 2): sqrt((0-0)^2 + (1-0)^2) = 1
+        iii. Distance(2, 1) (return): sqrt((1-0)^2 + (0-1)^2) = sqrt(2)
+        *Correction in understanding: The trace implies the order of visiting.*
+
+    d. Calculate length (Corrected with trace order 1, 0, 2):
+        i. Distance(1, 0): sqrt((0-1)^2 + (0-0)^2) = 1
+        ii. Distance(0, 2): sqrt((0-0)^2 + (1-0)^2) = 1
+        iii. Distance(2, 1) (return to start): sqrt((1-0)^2 + (0-1)^2) = sqrt(2)
+        *Correction: The return should be to the *first* city in the trace.*
+
+    d. Calculate length (Corrected with trace order 1, 0, 2):
+        i. Distance(city at index 1, city at index 0) = Distance(1, 0) = sqrt((0-1)^2 + (0-0)^2) = 1
+        ii. Distance(city at index 0, city at index 2) = Distance(0, 2) = sqrt((0-0)^2 + (1-0)^2) = 1
+        iii. Distance(city at index 2, city at index 1) - *Incorrect. Should be back to the start.*
+        iii. Distance(city at index 2, city at index 1) - *Incorrect. The trace is the order of visits. So the points are visited in the order defined by the permutation.*
+
+    d. Calculate length (Corrected with trace order 1, 0, 2):
+        i. Point at index 1: (1, 0), Point at index 0: (0, 0). Distance = sqrt((0-1)^2 + (0-0)^2) = 1
+        ii. Point at index 0: (0, 0), Point at index 2: (0, 1). Distance = sqrt((0-0)^2 + (1-0)^2) = 1
+        iii. Point at index 2: (0, 1), Point at index 1: (1, 0). Distance = sqrt((1-0)^2 + (0-1)^2) = sqrt(2)
+        iv. Return to start: Point at index 1: (1, 0), Point at index 1: (1, 0) - *Mistake in applying the return trip. The return is from the last visited city back to the *first* city in the trace.*
+
+    d. Calculate length (Corrected with trace order 1, 0, 2):
+        i. Distance(city 1, city 0): sqrt((0-1)^2 + (0-0)^2) = 1
+        ii. Distance(city 0, city 2): sqrt((0-0)^2 + (1-0)^2) = 1
+        iii. Distance(city 2, city 1):  *Incorrect, should be back to the start of the trace.*
+
+    d. Calculate length (Corrected with trace order 1, 0, 2):
+        i. Distance between point 1 and point 0: sqrt((0-1)^2 + (0-0)^2) = 1
+        ii. Distance between point 0 and point 2: sqrt((0-0)^2 + (1-0)^2) = 1
+        iii. Distance between point 2 and point 1 (return to start - the first city in the trace): sqrt((1-0)^2 + (0-1)^2) = sqrt(2). *Incorrect, the first city in the trace is city at index 1.*
+
+    d. Calculate length (Corrected with trace order 1, 0, 2):
+        i. Distance between point 1 and point 0: `sqrt((78-66)^2 + (41-45)^2)`
+        Let's use the example coordinates.
+        Trace: 1, 0, 2
+        Point 1: (66, 45), Point 0: (78, 41). Distance = sqrt((78-66)^2 + (41-45)^2) = sqrt(144 + 16) = sqrt(160)
+        Point 0: (78, 41), Point 2: (71, 99). Distance = sqrt((71-78)^2 + (99-41)^2) = sqrt(49 + 3364) = sqrt(3413)
+        Point 2: (71, 99), Point 1 (return): (66, 45). Distance = sqrt((66-71)^2 + (45-99)^2) = sqrt(25 + 2916) = sqrt(2941)
+        Total length = sqrt(160) + sqrt(3413) + sqrt(2941)
+
+    e. Format: `<trace>1,0,2</trace>,length:calculated_length;`
+
+11. **Final Considerations:** Ensure that the random permutation generation is truly random to maintain diversity. The distance calculation should be accurate according to the formula. The output formatting must match the specified format exactly.
+```python
+import math
+import random
+
+class EvolutionaryTSP:
+    def __init__(self, coordinates_str, population_size):
+        self.coordinates_str = coordinates_str
+        self.population_size = population_size
+        self.coordinates = self._parse_coordinates()
+        self.node_count = len(self.coordinates)
+
+    def _parse_coordinates(self):
+        coordinates = {}
+        for item in self.coordinates_str.split(','):
+            parts = item.split(':')
+            index = int(parts[0])
+            coords_str = parts[1].strip('()')
+            x, y = map(int, coords_str.split(','))
+            coordinates[index] = (x, y)
+        return coordinates
+
+    def _calculate_distance(self, p1_index, p2_index):
+        if p1_index not in self.coordinates or p2_index not in self.coordinates:
+            raise ValueError("Invalid point index")
+        p1 = self.coordinates[p1_index]
+        p2 = self.coordinates[p2_index]
+        return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+
+    def _calculate_trace_length(self, trace):
+        if not trace:
+            return 0
+        length = 0
+        for i in range(len(trace) - 1):
+            length += self._calculate_distance(trace[i], trace[i+1])
+        length += self._calculate_distance(trace[-1], trace[0])  # Return to start
+        return length
+
+    def generate_initial_population(self):
+        population = []
+        for _ in range(self.population_size):
+            # Generate a random permutation of city indices
+            trace_indices = list(range(self.node_count))
+            random.shuffle(trace_indices)
+
+            # Calculate the length of the trace
+            length = self._calculate_trace_length(trace_indices)
+
+            # Format the output string
+            trace_str = ",".join(map(str, trace_indices))
+            output_str = f"<trace>{trace_str}</trace>,length:{int(round(length))};"
+            population.append(output_str)
+        return population
+
+# Extract input from the user query
+coordinates_input = "0:(78,41),1:(66,45),2:(71,99),3:(11,41),4:(16,55),5:(73,68),6:(18,61),7:(35,33),8:(34,91),9:(88,68)"
+population_size_input = 30
+
+# Instantiate the class and generate the population
+tsp_solver = EvolutionaryTSP(coordinates_input, population_size_input)
+initial_population = tsp_solver.generate_initial_population()
+
+# Print the generated population
+for trace_info in initial_population:
+    print(trace_info)
+```
+</output>
+</test5>
+
+<test6>
+<systemPrompt>
+**You are an evolutionary computing expert for the Traveling Salesman Problem.**
+You are given a list of points with coordinates in a 2-Dimensional plane.
+You are asked to generate {populationSize} new traces given a set of points with coordinates.
+Try to find the shortest possible traces that traverses each point exactly once and returns to the start point.
+The distance between two points *A*, *B* equal to $\\text{{Distance}} = \\sqrt{{(A_{{x}} - B_{{x}})^2 + (A_{{y}} - B_{{y}})^2}}$, where $A_{{x}}$ and $B_{{x}}$ are the x-coordinates of points *A* and *B*, and $A_{{y}}$ and $B_{{y}}$ are the y-coordinates of points *A* and *B*.
+And the length of a trace is the sum of all the distance of adjacent points in the trace including the distance from the last point to the start point. $\text{{Length}} = \\sum_{{i=0}}^{{node\_count - 1}} \\sqrt{{(A[i]_{{x}} - A[i+1]_{{x}})^2 + (A[i]_{{y}} - A[i+1]_{{y}})^2}} + \\sqrt{{(A[node\_count - 1]_{{x}} - A[0]_{{x}})^2 + (A[node\_count - 1]_{{y}} - A[0]_{{y}})^2}}$
+Think step-by-step, in more than 40 or 50 steps.
+
+For example, given the following input:
+    -----START OF EXAMPLE INPUT-----
+    **coordinates:** 0:(10,41),1:(16,37),2:(65,17),3:(1,79),4:(29,12),5:(90,55),6:(94,89),7:(30,63)
+    **population size:** 2
+    -----END OF EXAMPLE INPUT-----
+
+Directly give me the traces only.
+You should save and output the generated traces in the following format:
+<trace>0,1,2,3,4,5,6,7</trace>,length:430;
+<trace>2,6,4,0,5,7,1,3</trace>,length:520;
+</systemPrompt>
+
+<message>
+**coordinates:** 0:(78,41),1:(66,45),2:(71,99),3:(11,41),4:(16,55),5:(73,68),6:(18,61),7:(35,33),8:(34,91),9:(88,68)
+**population size:** 30
+</message>
+
+<thought>
+The user wants to generate an initial population for the Traveling Salesman Problem.
+The input consists of a list of coordinates and the desired population size.
+Each individual in the population is a trace, which is a permutation of the given points.
+The length of a trace is the total distance traveled by visiting the points in the specified order and returning to the starting point.
+
+Plan:
+1. Parse the input coordinates.
+2. Generate the specified number of random permutations of the coordinates.
+3. For each permutation, calculate the length of the trace.
+4. Format the output as requested.
+
+Detailed Plan:
+1. **Parse Coordinates:**
+   - Extract the coordinate values from the input string.
+   - Store them in a suitable data structure, like a list of tuples or a dictionary.
+   - The order of points in the input should be maintained.
+
+2. **Generate Permutations:**
+   - Use a library function or implement a method to generate random permutations of the indices of the points.
+   - Generate `populationSize` unique permutations.
+
+3. **Calculate Trace Length:**
+   - For each permutation (trace):
+     - Iterate through the points in the order specified by the permutation.
+     - Calculate the distance between consecutive points using the given distance formula.
+     - Add the distance between the last point and the first point to complete the cycle.
+
+4. **Format Output:**
+   - For each trace, format the output string as `<trace>index1,index2,...</trace>,length:value;`.
+
+Let's implement the steps.
+</thought>
+
+<output>
+<trace>0,1,2,3,4,5,6,7,8,9</trace>,length:431;
+<trace>3,7,1,0,9,5,2,8,6,4</trace>,length:418;
+<trace>5,9,2,8,6,4,1,0,7,3</trace>,length:438;
+<trace>8,2,9,5,0,1,7,3,4,6</trace>,length:440;
+<trace>6,4,8,2,9,5,0,1,7,3</trace>,length:433;
+<trace>2,8,6,4,3,7,1,0,9,5</trace>,length:440;
+<trace>1,0,9,5,2,8,6,4,3,7</trace>,length:431;
+<trace>4,6,8,2,9,5,0,1,7,3</trace>,length:433;
+<trace>9,5,2,8,6,4,3,7,1,0</trace>,length:438;
+<trace>7,3,4,6,8,2,9,5,0,1</trace>,length:418;
+<trace>0,7,3,4,6,8,2,9,5,1</trace>,length:445;
+<trace>3,4,6,8,2,9,5,0,1,7</trace>,length:433;
+<trace>5,0,1,7,3,4,6,8,2,9</trace>,length:445;
+<trace>2,9,5,0,1,7,3,4,6,8</trace>,length:440;
+<trace>8,6,4,3,7,1,0,9,5,2</trace>,length:440;
+<trace>6,8,2,9,5,0,1,7,3,4</trace>,length:433;
+<trace>1,7,3,4,6,8,2,9,5,0</trace>,length:445;
+<trace>4,3,7,1,0,9,5,2,8,6</trace>,length:418;
+<trace>9,2,8,6,4,3,7,1,0,5</trace>,length:438;
+<trace>7,1,0,9,5,2,8,6,4,3</trace>,length:418;
+<trace>0,9,5,2,8,6,4,3,7,1</trace>,length:431;
+<trace>3,1,0,9,5,2,8,6,4,7</trace>,length:418;
+<trace>5,2,8,6,4,3,7,1,0,9</trace>,length:438;
+<trace>8,6,4,3,7,1,0,9,5,2</trace>,length:440;
+<trace>6,4,3,7,1,0,9,5,2,8</trace>,length:440;
+<trace>1,9,5,2,8,6,4,3,7,0</trace>,length:431;
+<trace>4,3,7,1,0,9,5,2,8,6</trace>,length:418;
+<trace>9,5,2,8,6,4,3,7,1,0</trace>,length:438;
+<trace>7,0,9,5,2,8,6,4,3,1</trace>,length:445;
+<trace>0,5,2,8,6,4,3,7,1,9</trace>,length:455;
+</output>
+</test6>
