@@ -1,4 +1,5 @@
 import re
+import random
 
 class PromptResponseManager:
     """
@@ -201,6 +202,9 @@ class PromptResponseManager:
         tracesStrings = re.findall(r'<trace>(.*?)</trace>', response)
         # Convert each trace string into a list of integers -> each integer is a point
         traces = [list(map(lambda pointChar: int(pointChar), traceString.split(','))) for traceString in tracesStrings]
+        
+        # Validate the traces
+        traces = [PromptResponseManager.fixTrace(trace, nodeCount) for trace in traces if not PromptResponseManager.validateTrace(trace, nodeCount)]
         return traces
     
     @staticmethod
@@ -258,10 +262,18 @@ class PromptResponseManager:
     
     @staticmethod
     def validateTrace(trace: list[int], points: dict, nodeCount: int) -> bool:
-        pass
+        return (len(trace) == nodeCount) and (len(set(trace)) == nodeCount) and all(point in points for point in trace) 
     
     @staticmethod
-    def fixTrace(trace: list[int], points: dict, nodeCount: int) -> list[int]:
-        pass
+    def fixTrace(trace: list[int], nodeCount: int) -> list[int]:
+        # get the points in the trace
+        setTrace = set(trace)
+        # get the points that are not in the trace
+        unavailablePoints = [point for point in range(nodeCount) if point not in setTrace]
+        # shuffle the unavailable points
+        random.shuffle(unavailablePoints)
+        # add the shuffled unavailable points to the trace
+        trace.extend(unavailablePoints)
+        return trace
+        
     
-print(PromptResponseManager.getSystemPrompt())
