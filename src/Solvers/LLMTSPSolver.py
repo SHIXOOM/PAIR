@@ -18,3 +18,7 @@ class LLMTSPSolver:
     @abstractmethod
     def solve(self, prompt:str)->str:
         pass
+    
+    @abstractmethod
+    def getTourLength(self, tour:list[int], problem:tsplib95.models.StandardProblem)->int:
+        pass

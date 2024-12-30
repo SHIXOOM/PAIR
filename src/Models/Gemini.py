@@ -31,7 +31,6 @@ class Gemini(Model):
             }
         
         # Initialize Gemini Client
-        
         genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
         self.client = genai.GenerativeModel(
             model_name = self.model,
@@ -55,7 +54,7 @@ class Gemini(Model):
         self.generation_config["temperature"] = temperature
         
         self.client = genai.GenerativeModel(
-            model_name = "gemini-2.0-flash-thinking-exp-1219",
+            model_name = self.model,
             generation_config = self.generation_config,
             system_instruction = self.system_prompt
             )

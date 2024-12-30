@@ -17,11 +17,35 @@ class ExampleSolver1(LLMTSPSolver):
         # solve the problem
         MAX_GENERATIONS = 250
         for generation in range(MAX_GENERATIONS):
-            points_coords = problem.get_nodes()
-            print(points_coords)
+            # if optimal distance is reached, return the best tour and the generation number
+            if population[-1][1] == optimalDistance: # TODO: get optimal distance for the problem, MAHMOUD
+                return population[-1][0], generation
             
-            new_gen_prompt = PRManager.getNewGenerationPrompt(population, points_coords)
-            new_generation = self.model.run(new_gen_prompt)
-             
+            # get the point-coordinates pairs, this is necessary to follow the prompt format for the point-coordinates pairs
+            pointsCoordinatesPairs = {i: (j[0], j[1]) for i, j in problem.node_coords.items()}
+            # get the node count
+            nodeCount = problem.dimension
+            print(pointsCoordinatesPairs)
             
-            pass
+            # get the new generation prompt and parse the new generation traces
+            newGenPrompt = PRManager.getNewGenerationPrompt(population, pointsCoordinatesPairs, 30)
+            newGenerationTraces = PRManager.parseNewGeneration(self.model.run(newGenPrompt), nodeCount = nodeCount)
+            
+            # get the lengths of the new generation traces
+            population = [] 
+            for trace in newGenerationTraces:
+                length = self.getTourLength(trace, problem)
+                population.append((trace, length))
+            
+            # sort the population by the tour lengths descendingly
+            population = sorted(population, key=lambda x: x[1], reverse = True)
+        
+        # if the optimal distance is not reached, return the best tour and the generation number
+        return population[-1][0], generation
+        
+    def getTourLength(self, tour:list[int], problem:tsplib95.models.StandardProblem)->int:
+        tourLength = 0
+        for i in range(problem.dimension - 1, -1, -1):
+            tourLength += problem.get_weight(tour[i], tour[i - 1])
+            
+        return tourLength

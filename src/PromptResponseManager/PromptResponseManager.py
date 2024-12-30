@@ -72,8 +72,8 @@ class PromptResponseManager:
         # make coordinates into a string format for the llm prompt
         # coordinates: 0:(10,41),1:(16,37),2:(65,17),3:(1,79),4:(29,12),5:(90,55),6:(94,89),7:(30,63)
         coordinates = ''
-        for key, value in points.items():
-            coordinates += f'{key}:{value},'
+        for point, pointCoordinates in points.items():
+            coordinates += f'{point}:{pointCoordinates},'
         
         # remove the extra comma at the end "[:-1]"
         return coordinates[:-1]
@@ -262,14 +262,14 @@ class PromptResponseManager:
     
     @staticmethod
     def validateTrace(trace: list[int], points: dict, nodeCount: int) -> bool:
-        return (len(trace) == nodeCount) and (len(set(trace)) == nodeCount) and all(point in points for point in trace) 
+        return (len(trace) == nodeCount) and (len(set(trace)) == nodeCount) and all(point in range(1, nodeCount + 1) for point in trace) 
     
     @staticmethod
     def fixTrace(trace: list[int], nodeCount: int) -> list[int]:
         # get the points in the trace
         setTrace = set(trace)
         # get the points that are not in the trace
-        unavailablePoints = [point for point in range(nodeCount) if point not in setTrace]
+        unavailablePoints = [point for point in range(1, nodeCount + 1) if point not in setTrace]
         # shuffle the unavailable points
         random.shuffle(unavailablePoints)
         # add the shuffled unavailable points to the trace
