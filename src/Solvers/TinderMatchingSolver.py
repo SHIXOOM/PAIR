@@ -1,6 +1,7 @@
+import tsplib95
 from src.Solvers.LLMTSPSolver import LLMTSPSolver
 from src.Models.Model import Model
-from src.PopulationInitializers.PopulationInitializer import  PopulationInitializer
+from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
 from src.PromptResponseManager.PromptResponseManager import PromptResponseManager as PRManager
 
 
@@ -9,43 +10,55 @@ class TinderMatchingSolver(LLMTSPSolver):
         super().__init__(model, population_initializer)
 
         self.population_initializer = population_initializer
-        
-    def solve(self, problem):
-        # initialize population
-        population = self.population_initializer.initialize(30, problem)
-         
-        # solve the problem
+
+    def solve(self, problem, problem_optimal_distance=0) -> tuple[list[int], int]:
+        """
+        Args:
+            problem: tsp problem instance
+            problem_optimal_distance(optional): problem optimal solution length
+        Returns:
+            tuple[list[int],int]
+            best found solution, generation number found in
+        """
+
+        """
+        - initialize population
+        """
+
         MAX_GENERATIONS = 250
-        for generation in range(MAX_GENERATIONS):
-            # if optimal distance is reached, return the best tour and the generation number
-            if population[-1][1] == optimalDistance: # TODO: get optimal distance for the problem, MAHMOUD
+        POPULATION_SIZE = 30
+        NODE_COUNT = problem.dimension
+
+        currentModelTemperature = 1
+        population = self.population_initializer.initialize(POPULATION_SIZE, problem)
+
+        """ Configure model """
+        systemPrompt = PRManager.getSystemPrompt(populationSize=POPULATION_SIZE)
+        self.model.configure(systemPrompt, currentModelTemperature)
+
+        pointsCoordinatesPairs = {i: (j[0], j[1]) for i, j in problem.node_coords.items()}
+        for generation in range(1, MAX_GENERATIONS + 1):
+            if population[-1][1] == problem_optimal_distance:
                 return population[-1][0], generation
-            
-            # get the point-coordinates pairs, this is necessary to follow the prompt format for the point-coordinates pairs
-            pointsCoordinatesPairs = {i: (j[0], j[1]) for i, j in problem.node_coords.items()}
-            # get the node count
-            nodeCount = problem.dimension
-            print(pointsCoordinatesPairs)
-            
-            # get the new generation prompt and parse the new generation traces
+
+            """
+            - use current generation(population) to generate prompt
+            - prompt the model to generate new generation
+            - parse response
+            """
             newGenPrompt = PRManager.getNewGenerationPrompt(population, pointsCoordinatesPairs, 30)
-            newGenerationTraces = PRManager.parseNewGeneration(self.model.run(newGenPrompt), nodeCount = nodeCount)
-            
+            newGenResponse = self.model.run(newGenPrompt)
+            newGenerationTraces = PRManager.parseNewGeneration(newGenResponse, nodeCount=NODE_COUNT)
+            # TODO: ADD logging
+
             # get the lengths of the new generation traces
-            population = [] 
+            population = []
             for trace in newGenerationTraces:
-                length = self.getTourLength(trace, problem)
+                length = problem.trace_tours([trace])
                 population.append((trace, length))
-            
+
             # sort the population by the tour lengths descendingly
-            population = sorted(population, key=lambda x: x[1], reverse = True)
-        
+            population = sorted(population, key=lambda x: x[1], reverse=True)
+
         # if the optimal distance is not reached, return the best tour and the generation number
-        return population[-1][0], generation
-        
-    def getTourLength(self, tour:list[int], problem:tsplib95.models.StandardProblem)->int:
-        tourLength = 0
-        for i in range(problem.dimension - 1, -1, -1):
-            tourLength += problem.get_weight(tour[i], tour[i - 1])
-            
-        return tourLength
+        return population[-1][0], MAX_GENERATIONS

@@ -1,4 +1,7 @@
 from abc import abstractmethod
+
+import tsplib95.models
+
 from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
 from src.Models.Model import Model
 
@@ -11,14 +14,11 @@ class LLMTSPSolver:
 
     This class is used to facilitate easy swapping of solvers
     """
-    def __init__(self, model: Model, population_initializer:PopulationInitializer):
+
+    def __init__(self, model: Model, population_initializer: PopulationInitializer):
         self.model = model
         self.population_initializer = population_initializer
-    
+
     @abstractmethod
-    def solve(self, prompt:str)->str:
-        pass
-    
-    @abstractmethod
-    def getTourLength(self, tour:list[int], problem:tsplib95.models.StandardProblem)->int:
+    def solve(self, problem: tsplib95.models.StandardProblem, problem_optimal_distance: float) -> str:
         pass

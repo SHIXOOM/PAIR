@@ -8,9 +8,10 @@ class DataManger:
     file operations.
 
     That is, it's a functional encapsulation of file operations
-    """ 
+    """
+
     @staticmethod
-    def load_problem(file_path:str) -> tsplib95.models.StandardProblem:
+    def load_problem(file_path: str) -> tsplib95.models.StandardProblem:
         """
         loads a tsp problem from a .tsp file
 

@@ -6,26 +6,27 @@ from src.Models.Model import Model
 
 class ExperimentRunner:
     def __init__(self,
-                problem_name:str,
-                problem_file_path:str,
-                solver: LLMTSPSolver,
-                model:Model,
-                ):
-
+                 problemName: str,
+                 problemFilePath: str,
+                 problemOptimalDistance: float,
+                 solver: LLMTSPSolver,
+                 model: Model,
+                 ):
         # initialize member variables
         self.solver = solver
-        self.problem_name = problem_name
-        self.problem_file_path = problem_file_path
+        self.problemName = problemName
+        self.problemOptimalDistance = problemOptimalDistance
+        self.problemFilePath = problemFilePath
         self.model = model
-        
-        # load ts problem
-        self.problem = DataManger.load_problem(problem_file_path)
+
+        # load tsp problem
+        self.problem = DataManger.load_problem(problemFilePath)
 
         print(f"ExperimentRunner created with solver: {solver}")
-    
+
     def run(self):
         print("running experiment")
 
         # run the solver
-        self.solver.solve(self.problem)
+        self.solver.solve(self.problem, self.problemOptimalDistance)
         print("experiment finished")

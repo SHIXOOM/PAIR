@@ -1,25 +1,25 @@
 import re
 import random
 
+
 class PromptResponseManager:
     """
     A static class to manage prompt templates and generation
     """
-    # region public methods
 
     @staticmethod
     def getSystemPrompt(selfHints: str = '', populationSize: int = 30) -> str:
         # get default crossover and mutation prompt and instructions for them
         crossoverPrompt, crossoverInstruction = PromptResponseManager.getCrossoverPrompt()
         mutationPrompt, mutationInstruction = PromptResponseManager.getMutationPrompt()
-        
+
         # get the tinder selection prompt
         tinderSelectionPrompt = PromptResponseManager.getTinderCrossoverPrompt()
-        
+
         # get self hints
         selfHints = '''
             '''
-        
+
         # get the system prompt
         prompt = f'''You are an evolutionary computing expert for the Traveling Salesman Problem.
             You are given a list of points with coordinates, some traces and their lengths. 
@@ -55,14 +55,14 @@ class PromptResponseManager:
             Step 3: <m>Inversion Mutation</m><trace>2,6,5,4,3,0,7,1</trace>
             '''
         return prompt
-    
+
     @staticmethod
     def getNewGenerationPrompt(population: list[tuple[list, int]], points: dict, populationSize: int) -> str:
         prompt = f'''**coordinates:** {PromptResponseManager.structureCoordinates(points)}
             **iteration number:** {populationSize}
             **traces and lengths:** {PromptResponseManager.structureTracesAndLengths(population)}
             '''
-            
+
         return prompt
 
     # endregion public methods
@@ -74,21 +74,21 @@ class PromptResponseManager:
         coordinates = ''
         for point, pointCoordinates in points.items():
             coordinates += f'{point}:{pointCoordinates},'
-        
+
         # remove the extra comma at the end "[:-1]"
         return coordinates[:-1]
-    
+
     @staticmethod
     def structureTracesAndLengths(population: list[tuple[list, int]]) -> str:
         # make traces and lengths into a string format for the llm prompt
         # <trace>0,1,2,3,4,5,6,7</trace>,length:430; <trace>2,6,4,0,5,7,1,3</trace>,length:520;....
-        
+
         traces = ''
         for trace, length in population:
-            traces += f'<trace>{','.join(point for point in trace)}</trace>,length:{length};'
-            
+            traces += f"<trace>{','.join(str(point) for point in trace)}</trace>,length:{length};"
+
         return traces
-            
+
     @staticmethod
     def getTinderCrossoverPrompt() -> str:
         prompt = '''you are a trace of on available traces, and you want to match with another trace like Tinder dating app, match yourself with the most suitable individual from the other traces for crossover, aiming to produce an offspring with an optimized solution. You can evaluate potential partners based on the following criteria, however, do not limit yourself to them solely, evaluate and pick the one that fits and complements you and your characterstics the best.:
@@ -103,7 +103,7 @@ class PromptResponseManager:
         - **Effective Combination:** Assess the compatibility of your genetic representation with potential partners to ensure that the chosen crossover operator can effectively merge the genomes, maintaining valid the Traveling Salesman Problem routes.
         Any selected traces in a previous iteration should not be selected again.'''
         return prompt
-    
+
     @staticmethod
     def getCrossoverPrompt() -> tuple[str, str]:
         crossoverOperatorsExplanation = '''There are 2 different crossover operators you can use:
@@ -126,9 +126,9 @@ class PromptResponseManager:
                         - **Fill in the remaining positions of the offspring based on the above sorted elements:** 3 7 1 4 5 6 8 2'''
 
         crossoverOperatorsInstruction = "Select one of the crossover operators based on above EC knowledge , use the selected crossover operator to crossover"
-        
+
         return crossoverOperatorsExplanation, crossoverOperatorsInstruction
-    
+
     @staticmethod
     def getMutationPrompt() -> tuple[str, str]:
         mutationOperatorsExplanation = '''There are 3 different mutation operators you can use:
@@ -152,9 +152,9 @@ class PromptResponseManager:
                         - **inverts the order of the elements between position 3 and position 6:** 5 2 7 1 4 8 6 3'''
 
         mutationOperatorsInstruction = "Select one of the Mutation operators based on above EC knowledge, use the selected crossover operator to mutate"
-        
+
         return mutationOperatorsExplanation, mutationOperatorsInstruction
-    
+
     @staticmethod
     def getInitialPopulationPrompt(points: dict, populationSize: int) -> tuple[str, str]:
         systemPrompt = f'''**You are an evolutionary computing expert for the Traveling Salesman Problem.**
@@ -176,16 +176,16 @@ class PromptResponseManager:
         <trace>0,1,2,3,4,5,6,7</trace>,length:430;
         <trace>2,6,4,0,5,7,1,3</trace>,length:520;
         '''
-        
+
         userPrompt = f'''**coordinates:** {PromptResponseManager.structureCoordinates(points)}
         **population size:** {populationSize}
         '''
         return systemPrompt, userPrompt
-    
+
     @staticmethod
     def parseInitialPopulationResponse(response: str, nodeCount: int) -> list[list[int]]:
         return PromptResponseManager.parseNewGeneration(response, nodeCount)
-    
+
     @staticmethod
     def parseNewGeneration(response: str, nodeCount: int) -> list[list[int]]:
         """Find all traces in the response -> list of lists,
@@ -197,16 +197,22 @@ class PromptResponseManager:
         [2, 6, 5, 3, 4, 7, 1, 0],
         [2, 6, 5, 4, 3, 0, 7, 1]]
         """
-        
+
         # Find all traces in the response -> list of strings, each string is a trace
         tracesStrings = re.findall(r'<trace>(.*?)</trace>', response)
         # Convert each trace string into a list of integers -> each integer is a point
         traces = [list(map(lambda pointChar: int(pointChar), traceString.split(','))) for traceString in tracesStrings]
-        
+
         # Validate the traces
-        traces = [PromptResponseManager.fixTrace(trace, nodeCount) for trace in traces if not PromptResponseManager.validateTrace(trace, nodeCount)]
+        valid_traces = []
+        for trace in traces:
+            if PromptResponseManager.validateTrace(trace, nodeCount):
+                valid_traces.append(trace)
+            else:
+                valid_traces.append(PromptResponseManager.fixTrace(trace, nodeCount))
+
         return traces
-    
+
     @staticmethod
     def parseSelectedTraces(response: str) -> list[list[str]]:
         """Find all trace pairs selected for mating -> list of lists
@@ -218,13 +224,13 @@ class PromptResponseManager:
         ['5,2,6,4,3,7,1,8,9,0', '9,0,5,8,7,3,6,4,2,1'],
         ['5,2,6,4,3,7,1,8,9,0', '9,0,2,5,8,4,6,3,1,7']]
         """
-        
+
         # Find all traces selected for mating -> list of strings, each string is a trace
         selectedTraces = re.findall(r'<sel>(.*?)</sel>', response)
         # Pair each two traces together (pairwise traces are the ones who mated in each iteration) -> list of lists, each list is a pair of traces
-        pairTraces = [list([selectedTraces[i], selectedTraces[i+1]]) for i in range(0, len(selectedTraces), 2)]
+        pairTraces = [list([selectedTraces[i], selectedTraces[i + 1]]) for i in range(0, len(selectedTraces), 2)]
         return pairTraces
-        
+
     @staticmethod
     def parseCrossoverMethods(response: str) -> list[tuple[str, str]]:
         """Find all crossover methods and the trace resulted from the crossover -> list of tuples
@@ -234,11 +240,11 @@ class PromptResponseManager:
         [('PMX (Partially Mapped Crossover)','4,3,6,8,9,7,1,5,2,0'),
         ('OX (Ordered Crossover)', '5,2,6,4,3,7,8,9,0,1'),
         ('PMX (Partially Mapped Crossover)', '9,0,6,4,3,7,1,8,5,2')]"""
-        
+
         # Find all crossover methods and the trace resulted from the crossover -> list of tuples
         selectedCrossoversAndTraceResulted = re.findall(r'<c>(.*?)</c><cross>(.*?)</cross>', response)
         return selectedCrossoversAndTraceResulted
-    
+
     @staticmethod
     def parseMutationMethods(response: str) -> set[tuple[str, int]]:
         """Find all mutation methods used in the iteration and the count of uses of each mutation method -> set of tuples
@@ -247,23 +253,24 @@ class PromptResponseManager:
         {('Insert Mutation', 5),
         ('Inversion Mutation', 5),
         ('Swap Mutation', 6)}"""
-        
+
         # Find all mutation methods used in the iteration -> list of strings, each string is a mutation method
         selectedMutations = re.findall(r'<m>(.*?)</m>', response)
         # Pair each mutation method with its count of usages -> set of tuples
-        selectedMutationsAndCounts = set((selectedMutation, selectedMutations.count(selectedMutation)) for selectedMutation in selectedMutations)
+        selectedMutationsAndCounts = set(
+            (selectedMutation, selectedMutations.count(selectedMutation)) for selectedMutation in selectedMutations)
         return selectedMutationsAndCounts
-        
-    
+
     @staticmethod
     def parseThoughts(response: str) -> list[str]:
         thoughts = re.findall(r'<thought>(.*?)</thought>', response)
         return thoughts
-    
+
     @staticmethod
-    def validateTrace(trace: list[int], points: dict, nodeCount: int) -> bool:
-        return (len(trace) == nodeCount) and (len(set(trace)) == nodeCount) and all(point in range(1, nodeCount + 1) for point in trace) 
-    
+    def validateTrace(trace: list[int], nodeCount: int) -> bool:
+        return (len(trace) == nodeCount) and (len(set(trace)) == nodeCount) and all(
+            point in range(1, nodeCount + 1) for point in trace)
+
     @staticmethod
     def fixTrace(trace: list[int], nodeCount: int) -> list[int]:
         # get the points in the trace
@@ -275,6 +282,3 @@ class PromptResponseManager:
         # add the shuffled unavailable points to the trace
         trace.extend(unavailablePoints)
         return trace
-        
-    
-print(PromptResponseManager.getSystemPrompt())

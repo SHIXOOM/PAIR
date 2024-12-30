@@ -9,5 +9,5 @@ class PopulationInitializer(ABC):
 
     @abstractmethod
     def initialize(self, population_size: int, problem: tsplib95.models.StandardProblem) -> list[tuple[list,int]]:
-        """ Initializes a population of chromosomes. """
+        """ returns a list of tuples. each tuple contains a 1-based tsp trace and its length """
         pass
