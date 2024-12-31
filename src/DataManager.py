@@ -1,6 +1,7 @@
 import tsplib95
 
 import pandas as pd
+import numpy as np
 
 class DataManger:
     """
@@ -26,13 +27,13 @@ class DataManger:
         return problem
 
     @staticmethod
-    def getOptimalityGap(minDistance: int, optimalDistance: int) -> float:
+    def getOptimalityGap(minDistance: float, optimalDistance: float) -> float:
         return round((((minDistance - optimalDistance) / optimalDistance) * 100), 2)
 
     @staticmethod
-    def addIterationData(df: pd.DataFrame, model: str, nodeCount: int, problemNumber: str, generation: int, distance: int, optimalDistance: int) -> bool:
-        pass
-    
+    def getGenerationVariance(populationDistances: list[float]) -> float:
+        return float(np.var(populationDistances))
+
     @staticmethod
-    def saveData(df: pd.DataFrame, filePath: str) -> bool:
+    def logIteration(modelName: str, nodeCount: int, problemName: str, iteration: int, distance: float, optimalDistance: float, variance: float) -> bool:
         pass
