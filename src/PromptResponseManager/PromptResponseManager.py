@@ -91,7 +91,8 @@ class PromptResponseManager:
 
     @staticmethod
     def getTinderCrossoverPrompt() -> str:
-        prompt = '''you are a trace of on available traces, and you want to match with another trace like Tinder dating app, match yourself with the most suitable individual from the other traces for crossover, aiming to produce an offspring with an optimized solution. You can evaluate potential partners based on the following criteria, however, do not limit yourself to them solely, evaluate and pick the one that fits and complements you and your characterstics the best.:
+        prompt = '''consider yourself a trace of one of the available traces, and you want to match with another trace as if you are using Tinder dating app, match yourself with the most suitable individual from the dating pool for crossover, aiming to produce an offspring with an optimized solution and length lower than you and your partner.
+        You can, but not limited to, evaluate potential partners based on the following criteria:
 
         A. **Genetic Diversity:**
         - **Complementary Traits:** Identify individual whose genetic makeup introduces beneficial variations when combined with yours, enhancing the offspring's potential to explore new solution spaces.
@@ -101,7 +102,8 @@ class PromptResponseManager:
 
         C. **Crossover Compatibility:**
         - **Effective Combination:** Assess the compatibility of your genetic representation with potential partners to ensure that the chosen crossover operator can effectively merge the genomes, maintaining valid the Traveling Salesman Problem routes.
-        Any selected traces in a previous iteration should not be selected again.'''
+        Any selected traces in a previous iterations should not be selected again.
+        You can select an offspring from the previous iterations for crossover in the next iterations.'''
         return prompt
 
     @staticmethod

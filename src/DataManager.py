@@ -1,5 +1,6 @@
 import tsplib95
 
+import pandas as pd
 
 class DataManger:
     """
@@ -23,3 +24,15 @@ class DataManger:
         """
         problem = tsplib95.load(file_path)
         return problem
+
+    @staticmethod
+    def getOptimalityGap(minDistance: int, optimalDistance: int) -> float:
+        return round((((minDistance - optimalDistance) / optimalDistance) * 100), 2)
+
+    @staticmethod
+    def addIterationData(df: pd.DataFrame, model: str, nodeCount: int, problemNumber: str, generation: int, distance: int, optimalDistance: int) -> bool:
+        pass
+    
+    @staticmethod
+    def saveData(df: pd.DataFrame, filePath: str) -> bool:
+        pass

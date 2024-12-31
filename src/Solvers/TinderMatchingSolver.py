@@ -37,8 +37,14 @@ class TinderMatchingSolver(LLMTSPSolver):
         self.model.configure(systemPrompt, currentModelTemperature)
 
         pointsCoordinatesPairs = {i: (j[0], j[1]) for i, j in problem.node_coords.items()}
+        bestSolutionLength = population[-1][1]
         for generation in range(1, MAX_GENERATIONS + 1):
-            if population[-1][1] == problem_optimal_distance:
+            print(f"""
+                best sol: {bestSolutionLength}
+                Generation: {generation}
+                _________________________________________________________________________________
+                  """)
+            if population[-1][1] == 417:
                 return population[-1][0], generation
 
             """
@@ -48,17 +54,24 @@ class TinderMatchingSolver(LLMTSPSolver):
             """
             newGenPrompt = PRManager.getNewGenerationPrompt(population, pointsCoordinatesPairs, 30)
             newGenResponse = self.model.run(newGenPrompt)
+            print(f"""___________________________________________________________________________
+                  {newGenResponse}
+                  """)
             newGenerationTraces = PRManager.parseNewGeneration(newGenResponse, nodeCount=NODE_COUNT)
             # TODO: ADD logging
 
             # get the lengths of the new generation traces
-            population = []
             for trace in newGenerationTraces:
                 length = problem.trace_tours([trace])
-                population.append((trace, length))
-
+                population.append((trace, length[0]))
+            
             # sort the population by the tour lengths descendingly
             population = sorted(population, key=lambda x: x[1], reverse=True)
-
+            population = population[-POPULATION_SIZE:]
+            print(f"""
+                  {population}
+                  """)
+            
+            bestSolutionLength = population[-1][1] if  population[-1][1] < bestSolutionLength else bestSolutionLength
         # if the optimal distance is not reached, return the best tour and the generation number
         return population[-1][0], MAX_GENERATIONS
