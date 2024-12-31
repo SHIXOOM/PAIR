@@ -44,7 +44,7 @@ class Gemini(Model):
 
     def run(self, prompt: str) -> str:
         response = self.client.generate_content(prompt).candidates[0]
-        return response.content.parts[0].text
+        return response.content.parts[1].text
 
     def set_temperature(self, temperature: float):
         self.temperature = temperature
