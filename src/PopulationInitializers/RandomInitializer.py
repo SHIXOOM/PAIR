@@ -1,9 +1,10 @@
 import tsplib95
+from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
 import random
 
-class RandomInitializer:
-    def __init__(self, problem: tsplib95.models.StandardProblem):
-        self.problem = problem
+class RandomInitializer(PopulationInitializer):
+    def __init__(self):
+        self.problem = None
     
     def initialize(self, population_size: int, problem: tsplib95.models.StandardProblem) -> list[tuple[list, int]]:
         """ returns a list of tuples. each tuple contains a 1-based tsp trace and its length """
@@ -23,6 +24,6 @@ class RandomInitializer:
         population = population[-population_size:]
         return population
 
-problem = tsplib95.load('/Users/shadyali/Downloads/clu_25_10.tsp')
-ri = RandomInitializer(problem)
-print(ri.initialize(16, problem))
+# problem = tsplib95.load('/Users/shadyali/Downloads/clu_25_10.tsp')
+# ri = RandomInitializer(problem)
+# print(ri.initialize(16, problem))

@@ -1,4 +1,4 @@
-from src.PopulationInitializers.SAPopulationInitializer import SAPopulationInitializer
+from src.PopulationInitializers.RandomInitializer import RandomInitializer
 from src.ExperimentRunner import ExperimentRunner
 from src.Models.Gemini import Gemini
 from src.Solvers.TinderMatchingSolver import TinderMatchingSolver
@@ -41,7 +41,7 @@ def main():
     # if same logic is needed in another place, it should be replaced by factory pattern
 
     if populationInitializerName == "sa":
-        populationInitializer = SAPopulationInitializer()
+        populationInitializer = RandomInitializer()
     else:
         raise Exception("population analyzer not found. refer to readme.md")
 
