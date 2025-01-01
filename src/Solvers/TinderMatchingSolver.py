@@ -5,6 +5,7 @@ from src.PopulationInitializers.PopulationInitializer import PopulationInitializ
 from src.PromptResponseManager.PromptResponseManager import PromptResponseManager as PRManager
 from src.DataManager import DataManager
 
+import logging
 import pandas as pd
 
 class TinderMatchingSolver(LLMTSPSolver):
@@ -13,7 +14,7 @@ class TinderMatchingSolver(LLMTSPSolver):
 
         self.population_initializer = population_initializer
 
-    def solve(self, problem, problem_optimal_distance=301) -> tuple[list[int], int]:
+    def solve(self, problem, problem_optimal_distance=301) -> tuple[list[int], float]:
         """
         Args:
             problem: tsp problem instance
@@ -23,36 +24,47 @@ class TinderMatchingSolver(LLMTSPSolver):
             best found solution, generation number found in
         """
 
-        """
-        - initialize population
-        """
-
+        
+        """ Set the maximum number of generations """
         MAX_GENERATIONS = 250
+        
+        """ Set the number of nodes in the problem """
         NODE_COUNT = problem.dimension
 
         populationSize = 16
-        currentModelTemperature = 1
-        population = self.population_initializer.initialize(populationSize, problem)
-
-        """ Configure model """
-        systemPrompt = PRManager.getSystemPrompt(populationSize=populationSize)
-        self.model.configure(systemPrompt, currentModelTemperature)
-
-        pointsCoordinatesPairs = {i: (j[0], j[1]) for i, j in problem.node_coords.items()}
-        bestSolutionLength = population[-1][1]
         
-        worseIterations  = 0
+        """ Configure model with the system prompt and temperature """
+        systemPrompt = PRManager.getSystemPrompt(populationSize=populationSize)
+        currentModelTemperature = 1
+        self.model.configure(systemPrompt, currentModelTemperature)
+        
+        
+        """ Initialize population and get the best solution length """
+        currentPopulation = self.population_initializer.initialize(populationSize, problem)
+        bestSolutionLength = currentPopulation[-1][1]
+        
+        
+
+        """ Get points coordinates pairs """
+        pointsCoordinatesPairs = {i: (j[0], j[1]) for i, j in problem.node_coords.items()}
+        
+        
+        
+        """ Counter for how many consecutive bad iterations occured
+        to update the model's temperature and population size """
+        worseIterations = 0
         
         #####
-        problem_optimal_distance = 252
-        iterationPath = "rue_15_3.csv"
+        problem_optimal_distance = 350
+        iterationPath = "rue_15_4.csv"
         iterationsDataStructure = {"model": [], "node number": [],
                            "problem": [], "iteration": [], "distance": [],
                            "optimal distance": [], "gap": [], "temperature": [], "population size": [], "variance": []}
         #####
+        
         for generation in range(1, MAX_GENERATIONS + 1):
-            variance = DataManager.getGenerationVariance(populationDistances = [x[1] for x in population])
             ############################################################ temporary csv storage:
+            variance = DataManager.getGenerationVariance(populationDistances = [x[1] for x in currentPopulation])
             iterationsDataStructure["model"].append("gemini-2.0-flash-thinking-exp")
             iterationsDataStructure["node number"].append(NODE_COUNT)
             iterationsDataStructure["problem"].append(problem.name)
@@ -72,73 +84,106 @@ class TinderMatchingSolver(LLMTSPSolver):
                 Population Size: {populationSize}
                 _________________________________________________________________________________
                 """)
-            if population[-1][1] == problem_optimal_distance:
+            if currentPopulation[-1][1] == problem_optimal_distance:
                 ############################################################
                 pd.DataFrame(iterationsDataStructure).to_csv(iterationPath)
                 ############################################################
-                return population[-1][0], generation
+                return currentPopulation[-1][0], generation
 
             """
             - use current generation(population) to generate prompt
             - prompt the model to generate new generation
             - parse response
             """
-            newGenPrompt = PRManager.getNewGenerationPrompt(population, pointsCoordinatesPairs, 30)
-            newGenResponse = self.model.run(newGenPrompt, nodeCount = NODE_COUNT)
-            print(f"""___________________________________________________________________________
-                {newGenResponse}
-                """)
+            # get new population
+            newPopulation = self.getNewPopulation(problem, currentPopulation,
+                                                  NODE_COUNT, pointsCoordinatesPairs,
+                                                  populationSize)
             
-            # get new generation traces
-            newGenerationTraces = PRManager.parseNewGeneration(newGenResponse, nodeCount=NODE_COUNT)
-            # TODO: ADD logging
-
-            # get the lengths of the new generation traces
-            newPopulation = []
-            for trace in newGenerationTraces:
-                length = problem.trace_tours([trace])
-                newPopulation.append((trace, length[0]))
+            # update temperature and population size
+            currentModelTemperature, populationSize, worseIterations = self.updateTemperatureAndPopulationSize(newPopulation, bestSolutionLength,
+                                                                      currentModelTemperature, systemPrompt,
+                                                                      populationSize, worseIterations)
             
-            # sort new population by length descendingly
-            newPopulation = sorted(newPopulation, key=lambda x: x[1], reverse=True)
+            # combine populations
+            currentPopulation = self.combinePopulations(currentPopulation, newPopulation,
+                                                        populationSize)
             
-            # check if the new population has individuals
-            if len(newPopulation) > 0:
-                # if the new population's best individual is worse than the best solution, increment worseIterations
-                if newPopulation[-1][1] >= bestSolutionLength:
-                    worseIterations += 1
-                # reset, you broke the cycle
-                else:
-                    worseIterations = 0
-            
-            # if we passed 20 worse iterations, we need to increase the model's temperature and population size
-            if worseIterations > 20:
-                worseIterations = 0
-                if currentModelTemperature < 2:
-                    currentModelTemperature += 0.05
-                    self.model.configure(systemPrompt, currentModelTemperature)
-                    populationSize += 2
-            
-            # remove duplicates from the new population
-            newPopulation = list(filter(lambda x: all(item[0]!=x[0] for item in population), newPopulation))
-            
-            # add the new population to the current population
-            population.extend(newPopulation)
-            # sort the population by the tour lengths descendingly
-            population = sorted(population, key=lambda x: x[1], reverse=True)
-            # keep the best populationSize individuals
-            population = population[-populationSize:]
             print(f"""
-                  {population}
+                  {currentPopulation}
                   """)        
-            bestSolutionLength = population[-1][1] if  population[-1][1] < bestSolutionLength else bestSolutionLength
-            ############################################################
+            bestSolutionLength = currentPopulation[-1][1] if currentPopulation[-1][1] < bestSolutionLength else bestSolutionLength
             
-            ############################################################
+            
         # if the optimal distance is not reached, return the best tour and the generation number
         
         ############################################################ temporary csv storage:
         pd.DataFrame(iterationsDataStructure).to_csv(iterationPath)
         ############################################################ 
         
-        return population[-1][0], MAX_GENERATIONS
+        return currentPopulation[-1][0], MAX_GENERATIONS
+
+
+    def getNewPopulation(self, problem, currentPopulation, NODE_COUNT, pointsCoordinatesPairs, populationSize) -> list[tuple[list[int], float]]:
+        # get new generation prompt
+        newGenPrompt = PRManager.getNewGenerationPrompt(currentPopulation, pointsCoordinatesPairs, populationSize)
+        
+        # get new generation response from the llm
+        newGenResponse = self.model.run(newGenPrompt, nodeCount = NODE_COUNT)
+        print(f"""___________________________________________________________________________
+            {newGenResponse}
+            """)
+        
+        # parse new generation traces
+        newGenerationTraces = PRManager.parseNewGeneration(newGenResponse, nodeCount=NODE_COUNT)
+        # TODO: ADD logging
+
+        # calculate the lengths of the new generation traces
+        newPopulation = []
+        for trace in newGenerationTraces:
+            length = round(problem.trace_tours([trace])[0], 3)
+            newPopulation.append((trace, length))
+        
+        # remove duplicates from the new population
+        newPopulation = list(filter(lambda newIndividual: all(newIndividual[0] != currentIndividual[0] for currentIndividual in currentPopulation), newPopulation))
+        
+        # sort new population by length descendingly
+        newPopulation = sorted(newPopulation, key=lambda x: x[1], reverse=True)
+        
+        return newPopulation
+        
+        
+    def updateTemperatureAndPopulationSize(self, newPopulation, bestSolutionLength, currentModelTemperature, systemPrompt, populationSize, worseIterations) -> tuple[float, int, int]:
+        # check if the new population has individuals
+        if len(newPopulation) > 0:
+            # if the new population's best individual is worse than the best solution, increment worseIterations
+            if newPopulation[-1][1] >= bestSolutionLength:
+                worseIterations += 1
+            # reset, you broke the cycle of no positive improvement
+            else:
+                worseIterations = 0
+        
+        # if we passed 20 worse iterations, we need to increase the model's temperature and population size
+        if worseIterations > 20:
+            worseIterations = 0
+            if currentModelTemperature < 2:
+                currentModelTemperature += 0.05
+                self.model.configure(systemPrompt, currentModelTemperature)
+                populationSize += 2
+                
+        return round(currentModelTemperature, 3), populationSize, worseIterations
+    
+    
+    def combinePopulations(self, currentPopulation, newPopulation, populationSize) -> list[tuple[list[int], float]]:
+        # add the new population to the current population
+        currentPopulation.extend(newPopulation)
+        
+        # sort the population by the tour lengths descendingly
+        currentPopulation = sorted(currentPopulation, key=lambda x: x[1], reverse=True)
+        
+        # keep the best populationSize individuals
+        currentPopulation = currentPopulation[-populationSize:]
+        
+        return currentPopulation
+
+
