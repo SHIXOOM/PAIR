@@ -13,7 +13,7 @@ class Gemini(Model):
        Example concrete implementation of the Model class 
     """
 
-    def __init__(self, systemPrompt: str, temperature: float, modelName="gemini-2.0-flash-thinking-exp"):
+    def __init__(self, systemPrompt: str, temperature: float, modelName="gemini-2.0-flash-thinking-exp-1219"):
         super().__init__(systemPrompt, temperature)
 
         # Load environment variables

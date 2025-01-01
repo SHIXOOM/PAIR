@@ -3,7 +3,7 @@ import tsplib95
 import pandas as pd
 import numpy as np
 
-class DataManger:
+class DataManager:
     """
     A class to manage all interactions with files
     Serves more like a namespace or a utility class for
@@ -35,5 +35,5 @@ class DataManger:
         return float(np.var(populationDistances))
 
     @staticmethod
-    def logIteration(modelName: str, nodeCount: int, problemName: str, iteration: int, distance: float, optimalDistance: float, variance: float) -> bool:
+    def logIteration(modelName: str, nodeCount: int, problemName: str, iteration: int, distance: float, optimalDistance: float, variance: float, temperature: float) -> bool:
         pass

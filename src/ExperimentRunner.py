@@ -1,6 +1,6 @@
 from src.Solvers.LLMTSPSolver import LLMTSPSolver
 from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
-from src.DataManager import DataManger
+from src.DataManager import DataManager
 from src.Models.Model import Model
 
 
@@ -20,7 +20,7 @@ class ExperimentRunner:
         self.model = model
 
         # load tsp problem
-        self.problem = DataManger.load_problem(problemFilePath)
+        self.problem = DataManager.load_problem(problemFilePath)
 
         print(f"ExperimentRunner created with solver: {solver}")
 
