@@ -1,12 +1,11 @@
 from src.Models.Model import Model
 import google.generativeai as genai
+
 import os
 from dotenv import load_dotenv
+import time
 
-from IPython.display import display, Markdown
-import webbrowser
-import tempfile
-
+from src.PromptResponseManager.PromptResponseManager import PromptResponseManager as PRManager
 
 class Gemini(Model):
     """
@@ -42,9 +41,19 @@ class Gemini(Model):
             system_instruction=systemPrompt
         )
 
-    def run(self, prompt: str) -> str:
-        response = self.client.generate_content(prompt).candidates[0]
-        return response.content.parts[1].text
+    def run(self, prompt: str, nodeCount: int) -> str:
+        
+        while True:
+            try:
+                response = self.client.generate_content(prompt).candidates[0]
+                
+                # test if the response is parseable
+                PRManager.parseNewGeneration(response, nodeCount = nodeCount)
+                return response.content.parts[1].text
+            except Exception as e:
+                print(f"Error while making the Model's call: {e}")
+                time.sleep(0.5) # Sleep for 500ms before retrying
+                continue
 
     def set_temperature(self, temperature: float):
         self.temperature = temperature

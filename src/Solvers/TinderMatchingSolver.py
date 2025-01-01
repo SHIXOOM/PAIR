@@ -44,8 +44,8 @@ class TinderMatchingSolver(LLMTSPSolver):
         worseIterations  = 0
         
         #####
-        problem_optimal_distance = 179
-        iterationPath = "clu_10_1.csv"
+        problem_optimal_distance = 252
+        iterationPath = "rue_15_3.csv"
         iterationsDataStructure = {"model": [], "node number": [],
                            "problem": [], "iteration": [], "distance": [],
                            "optimal distance": [], "gap": [], "temperature": [], "population size": [], "variance": []}
@@ -84,7 +84,7 @@ class TinderMatchingSolver(LLMTSPSolver):
             - parse response
             """
             newGenPrompt = PRManager.getNewGenerationPrompt(population, pointsCoordinatesPairs, 30)
-            newGenResponse = self.model.run(newGenPrompt)
+            newGenResponse = self.model.run(newGenPrompt, nodeCount = NODE_COUNT)
             print(f"""___________________________________________________________________________
                 {newGenResponse}
                 """)
