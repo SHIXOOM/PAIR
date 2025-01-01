@@ -1,6 +1,5 @@
 from src.Solvers.LLMTSPSolver import LLMTSPSolver
-from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
-from src.DataManager import DataManager
+from src.ExperimentDataManager import ExperimentDataManager
 from src.Models.Model import Model
 
 
@@ -20,7 +19,8 @@ class ExperimentRunner:
         self.model = model
 
         # load tsp problem
-        self.problem = DataManager.load_problem(problemFilePath)
+        self.expDataManager = ExperimentDataManager(problemFilePath, problemName, "FIXME", problemOptimalDistance)
+        self.problem = self.expDataManager.getProblem()
 
         print(f"ExperimentRunner created with solver: {solver}")
 
