@@ -8,7 +8,7 @@ class PromptResponseManager:
     """
 
     @staticmethod
-    def getSystemPrompt(selfHints: str = '', populationSize: int = 30) -> str:
+    def getSystemPrompt(selfHints: str = '', populationSize: int = 16) -> str:
         # get default crossover and mutation prompt and instructions for them
         crossoverPrompt, crossoverInstruction = PromptResponseManager.getCrossoverPrompt()
         mutationPrompt, mutationInstruction = PromptResponseManager.getMutationPrompt()
@@ -164,7 +164,7 @@ class PromptResponseManager:
         You are asked to generate {populationSize} new traces given a set of points with coordinates.
         Try to find the shortest possible traces that traverses each point exactly once and returns to the start point.
         The distance between two points *A*, *B* equal to $\\text{{Distance}} = \\sqrt{{(A_{{x}} - B_{{x}})^2 + (A_{{y}} - B_{{y}})^2}}$, where $A_{{x}}$ and $B_{{x}}$ are the x-coordinates of points *A* and *B*, and $A_{{y}}$ and $B_{{y}}$ are the y-coordinates of points *A* and *B*.
-        And the length of a trace is the sum of all the distance of adjacent points in the trace including the distance from the last point to the start point. $\text{{Length}} = \\sum_{{i=0}}^{{node\_count - 1}} \\sqrt{{(A[i]_{{x}} - A[i+1]_{{x}})^2 + (A[i]_{{y}} - A[i+1]_{{y}})^2}} + \\sqrt{{(A[node\_count - 1]_{{x}} - A[0]_{{x}})^2 + (A[node\_count - 1]_{{y}} - A[0]_{{y}})^2}}$
+        And the length of a trace is the sum of all the distance of adjacent points in the trace including the distance from the last point to the start point. $\\text{{Length}} = \\sum_{{i=0}}^{{node\_count - 1}} \\sqrt{{(A[i]_{{x}} - A[i+1]_{{x}})^2 + (A[i]_{{y}} - A[i+1]_{{y}})^2}} + \\sqrt{{(A[node\_count - 1]_{{x}} - A[0]_{{x}})^2 + (A[node\_count - 1]_{{y}} - A[0]_{{y}})^2}}$
         Think step-by-step, in more than 40 or 50 steps.
         
         For example, given the following input:

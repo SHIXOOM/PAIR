@@ -47,11 +47,11 @@ class Gemini(Model):
 
         while True:
             try:
-                response = self.client.generate_content(prompt).candidates[0]
-
+                response = self.client.generate_content(prompt).candidates[0].content.parts[1].text
+                
                 # test if the response is parseable
-                PRManager.parseNewGeneration(response, nodeCount=nodeCount)
-                return response.content.parts[1].text
+                PRManager.parseNewGeneration(response, nodeCount = nodeCount)
+                return response
             except Exception as e:
                 print(f"Error while making the Model's call: {e}")
                 time.sleep(0.5)  # Sleep for 500ms before retrying
