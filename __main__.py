@@ -1,62 +1,60 @@
 from src.PopulationInitializers.RandomInitializer import RandomInitializer
+from src.PopulationInitializers.SAPopulationInitializer import SAPopulationInitializer as SAInitializer
 from src.ExperimentRunner import ExperimentRunner
 from src.Models.Gemini import Gemini
 from src.Solvers.TinderMatchingSolver import TinderMatchingSolver
-import argparse
 
 
 def main():
     # Input taking
-    parser = argparse.ArgumentParser(description='Run the experiment with specified parameters.')
-    parser.add_argument('--problem_name',
-                        type=str, default="A",
-                        help='Name of the problem')
-    parser.add_argument('--solver_name',
-                        type=str, default="solver1", choices=['solver1'],
-                        help='Name of the solver to use')
-    parser.add_argument('--model_name',
-                        type=str, default="gemini", choices=['gemini'],
-                        help='Name of the model to use')
-    parser.add_argument('--pop_init',
-                        type=str, default="sa", choices=['sa'],
-                        help='Name of the population initializer to use')
-    parser.add_argument('--tsp_path',
-                        type=str, required=True,
-                        help='Path to the problem file')
-    parser.add_argument('--optimal_distance',
-                        default=0, help="optimal solution for the problem")
+    problem_name = input("Enter the name of the problem: ")
+    tsp_path = input("Enter the path to the problem file: ")
+    optimal_distance = float(input("Enter the optimal solution for the problem : "))
 
-    args = parser.parse_args()
+    # Prompt user to select solver
+    solvers = ["TinderMatching"]
+    print("Select the solver to use:")
+    for i, solver in enumerate(solvers, 1):
+        print(f"{i}. {solver}")
+    solver_choice = int(input("Enter the number of the solver: "))
+    solver_name = solvers[solver_choice - 1]
 
-    problemName = args.problem_name
-    problemFilePath = args.tsp_path
-    solverName = args.solver_name
-    modelName = args.model_name
-    populationInitializerName = args.pop_init
-    optimalSolution = args.optimal_distance
+    # Prompt user to select model
+    models = ["gemini-2.0-flash-thinking"]
+    print("Select the model to use:")
+    for i, model in enumerate(models, 1):
+        print(f"{i}. {model}")
+    model_choice = int(input("Enter the number of the model: "))
+    model_name = models[model_choice - 1]
+
+    # Prompt user to select population initializer
+    population_initializers = ["simulated-annealing", "random"]
+    print("Select the population initializer to use:")
+    for i, pop_init in enumerate(population_initializers, 1):
+        print(f"{i}. {pop_init}")
+    pop_init_choice = int(input("Enter the number of the population initializer: "))
+    population_initializer_name = population_initializers[pop_init_choice - 1]
 
     # Create Solver and Model Instance
-    # technically, we can use a factory pattern here
-    # but for simplicity, we will just use if-else
-    # if same logic is needed in another place, it should be replaced by factory pattern
-
-    if populationInitializerName == "sa":
-        populationInitializer = RandomInitializer()
+    if population_initializer_name == "simulated-annealing":
+        population_initializer = SAInitializer()
+    elif population_initializer_name == "random":
+        population_initializer = RandomInitializer()
     else:
-        raise Exception("population analyzer not found. refer to readme.md")
+        raise Exception("Population initializer not found.")
 
-    if modelName == "gemini":
-        model = Gemini("system_prompt", 1)
+    if model_name == "gemini-2.0-flash-thinking":
+        model = Gemini("system_prompt", 1,model_name)
     else:
         raise Exception("Model not found")
 
-    if solverName == "solver1":
-        solver = TinderMatchingSolver(model, populationInitializer)
+    if solver_name == "TinderMatching":
+        solver = TinderMatchingSolver(model, population_initializer)
     else:
         raise Exception("Solver not found")
 
     # ExperimentRunner
-    experiment_runner = ExperimentRunner(problemName, problemFilePath, optimalSolution, solver, model)
+    experiment_runner = ExperimentRunner(problem_name, tsp_path, optimal_distance, solver, model)
     experiment_runner.run()
 
 
