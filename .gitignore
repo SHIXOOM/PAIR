@@ -54,5 +54,5 @@ Thumbs.db
 # Project specific
 logs/
 results/
-data/raw/
-data/processed/
+data/
+data/
