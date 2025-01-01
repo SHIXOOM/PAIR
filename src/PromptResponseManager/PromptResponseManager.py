@@ -206,14 +206,14 @@ class PromptResponseManager:
         traces = [list(map(lambda pointChar: int(pointChar), traceString.split(','))) for traceString in tracesStrings]
 
         # Validate the traces
-        valid_traces = []
+        validTraces = []
         for trace in traces:
             if PromptResponseManager.validateTrace(trace, nodeCount):
-                valid_traces.append(trace)
+                validTraces.append(trace)
             else:
-                valid_traces.append(PromptResponseManager.fixTrace(trace, nodeCount))
+                validTraces.append(PromptResponseManager.fixTrace(trace, nodeCount))
 
-        return traces
+        return validTraces
 
     @staticmethod
     def parseSelectedTraces(response: str) -> list[list[str]]:
