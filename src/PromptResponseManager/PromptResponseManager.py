@@ -274,6 +274,8 @@ class PromptResponseManager:
 
     @staticmethod
     def fixTrace(trace: list[int], nodeCount: int) -> list[int]:
+        # remove the points that are not in the range of 1 to nodeCount
+        trace = [point for point in trace if point in range(1, nodeCount + 1)]
         # get the points in the trace
         setTrace = set(trace)
         # get the points that are not in the trace
@@ -282,6 +284,4 @@ class PromptResponseManager:
         random.shuffle(unavailablePoints)
         # add the shuffled unavailable points to the trace
         trace.extend(unavailablePoints)
-        # remove the points that are not in the range of 1 to nodeCount
-        trace = [point for point in trace if point in range(1, nodeCount + 1)]
         return trace

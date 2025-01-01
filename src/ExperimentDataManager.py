@@ -69,7 +69,7 @@ class ExperimentDataManager:
             'gap': [optimalityGap],
             'temperature': [modelTemperature],
             'population size': [populationSize],
-            'generation': [generationVariance]
+            'variance': [generationVariance]
         }
 
     def _write_to_csv(self, file_path: Path, data: Dict[str, Any]) -> None:
