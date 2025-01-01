@@ -5,56 +5,75 @@ from src.Models.Gemini import Gemini
 from src.Solvers.TinderMatchingSolver import TinderMatchingSolver
 
 
-def main():
-    # Input taking
-    problem_name = input("Enter the name of the problem: ")
-    tsp_path = input("Enter the path to the problem file: ")
-    optimal_distance = float(input("Enter the optimal solution for the problem : "))
+def get_user_input(prompt):
+    return input(prompt)
 
-    # Prompt user to select solver
+
+def select_option(options, prompt):
+    print(prompt)
+    for i, option in enumerate(options, 1):
+        print(f"{i}. {option}")
+    choice = int(get_user_input("Enter the number of your choice: "))
+    return options[choice - 1]
+
+
+def get_experiment_inputs():
+    problem_name = get_user_input("Enter the name of the problem: ")
+    tsp_path = get_user_input("Enter the path to the problem file: ")
+    optimal_distance = float(get_user_input("Enter the optimal solution for the problem: "))
+
     solvers = ["TinderMatching"]
-    print("Select the solver to use:")
-    for i, solver in enumerate(solvers, 1):
-        print(f"{i}. {solver}")
-    solver_choice = int(input("Enter the number of the solver: "))
-    solver_name = solvers[solver_choice - 1]
+    solver_name = select_option(solvers, "Select the solver to use:")
 
-    # Prompt user to select model
-    models = ["gemini-2.0-flash-thinking"]
-    print("Select the model to use:")
-    for i, model in enumerate(models, 1):
-        print(f"{i}. {model}")
-    model_choice = int(input("Enter the number of the model: "))
-    model_name = models[model_choice - 1]
+    models = ["gemini-2.0-flash-thinking-exp-1219"]
+    model_name = select_option(models, "Select the model to use:")
 
-    # Prompt user to select population initializer
     population_initializers = ["simulated-annealing", "random"]
-    print("Select the population initializer to use:")
-    for i, pop_init in enumerate(population_initializers, 1):
-        print(f"{i}. {pop_init}")
-    pop_init_choice = int(input("Enter the number of the population initializer: "))
-    population_initializer_name = population_initializers[pop_init_choice - 1]
+    population_initializer_name = select_option(population_initializers, "Select the population initializer to use:")
 
-    # Create Solver and Model Instance
-    if population_initializer_name == "simulated-annealing":
+    return {
+        'problem_name': problem_name,
+        'tsp_path': tsp_path,
+        'optimal_distance': optimal_distance,
+        'solver_name': solver_name,
+        'model_name': model_name,
+        'population_initializer_name': population_initializer_name
+    }
+
+
+def initialize_experiment(inputs):
+    # Initialize population initializer
+    if inputs['population_initializer_name'] == "simulated-annealing":
         population_initializer = SAInitializer()
-    elif population_initializer_name == "random":
+    elif inputs['population_initializer_name'] == "random":
         population_initializer = RandomInitializer()
     else:
         raise Exception("Population initializer not found.")
 
-    if model_name == "gemini-2.0-flash-thinking":
-        model = Gemini("system_prompt", 1,model_name)
+    # Initialize model
+    if inputs['model_name'] == "gemini-2.0-flash-thinking-exp-1219":
+        model = Gemini("system_prompt", 1, inputs['model_name'])
     else:
         raise Exception("Model not found")
 
-    if solver_name == "TinderMatching":
+    # Initialize solver
+    if inputs['solver_name'] == "TinderMatching":
         solver = TinderMatchingSolver(model, population_initializer)
     else:
         raise Exception("Solver not found")
 
-    # ExperimentRunner
-    experiment_runner = ExperimentRunner(problem_name, tsp_path, optimal_distance, solver, model)
+    return ExperimentRunner(
+        inputs['problem_name'],
+        inputs['tsp_path'],
+        inputs['optimal_distance'],
+        solver,
+        model
+    )
+
+
+def main():
+    inputs = get_experiment_inputs()
+    experiment_runner = initialize_experiment(inputs)
     experiment_runner.run()
 
 

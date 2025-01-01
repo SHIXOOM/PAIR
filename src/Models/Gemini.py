@@ -16,10 +16,12 @@ class Gemini(Model):
     def __init__(self, systemPrompt: str, temperature: float, modelName="gemini-2.0-flash-thinking-exp-1219"):
         super().__init__(systemPrompt, temperature, modelName)
 
-        # Load environment variables
+        self.generation_config = None
         self.systemPrompt = None
         self.client = None
         self.generationConfig = None
+
+        # Load environment variables
         load_dotenv()
 
         self.modelName = modelName
@@ -43,18 +45,24 @@ class Gemini(Model):
             system_instruction=systemPrompt
         )
 
-    def run(self, prompt: str, nodeCount: int) -> str:
-
+    def run(self, prompt: str) -> str:
+        errors = 0
         while True:
             try:
                 response = self.client.generate_content(prompt).candidates[0].content.parts[1].text
-                
-                # test if the response is parseable
-                PRManager.parseNewGeneration(response, nodeCount = nodeCount)
                 return response
             except Exception as e:
                 print(f"Error while making the Model's call: {e}")
-                time.sleep(0.5)  # Sleep for 500ms before retrying
+                if (errors+1) % 10 == 0:
+                    shouldContinue = \
+                        input(f"Api provider responded with {errors} errors in a row. do you want to continue? (Y/N)"
+                            ) == "Y"
+
+                    if not shouldContinue:
+                        raise e
+
+                time.sleep(1)  # Sleep for 1s before retrying
+                errors += 1
                 continue
 
     def set_temperature(self, temperature: float):

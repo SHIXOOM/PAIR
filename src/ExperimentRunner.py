@@ -19,8 +19,9 @@ class ExperimentRunner:
         self.model = model
 
         # load tsp problem
-        self.expDataManager = ExperimentDataManager(problemFilePath, problemName, "FIXME", problemOptimalDistance)
-        self.problem = self.expDataManager.getProblem()
+        self.expDataManager = \
+            ExperimentDataManager(problemFilePath, problemName, self.model.modelName, problemOptimalDistance)
+        self.problem = self.expDataManager.problem
 
         print(f"ExperimentRunner created with solver: {solver}")
 
@@ -28,5 +29,5 @@ class ExperimentRunner:
         print("running experiment")
 
         # run the solver
-        self.solver.solve(self.problem, self.problemOptimalDistance)
+        self.solver.solve(self.expDataManager)
         print("experiment finished")

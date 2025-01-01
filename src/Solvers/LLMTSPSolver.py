@@ -1,9 +1,8 @@
 from abc import abstractmethod
 
-import tsplib95.models
-
-from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
 from src.Models.Model import Model
+from src.ExperimentDataManager import ExperimentDataManager
+from src.PopulationInitializers.PopulationInitializer import PopulationInitializer
 
 
 class LLMTSPSolver:
@@ -20,5 +19,5 @@ class LLMTSPSolver:
         self.population_initializer = population_initializer
 
     @abstractmethod
-    def solve(self, problem: tsplib95.models.StandardProblem, problem_optimal_distance: float) -> str:
+    def solve(self, expDataManager: ExperimentDataManager) -> str:
         pass
