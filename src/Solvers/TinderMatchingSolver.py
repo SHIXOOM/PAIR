@@ -44,13 +44,14 @@ class TinderMatchingSolver(LLMTSPSolver):
         worseIterations  = 0
         
         #####
-        problem_optimal_distance = 257
+        problem_optimal_distance = 179
+        iterationPath = "clu_10_1.csv"
         iterationsDataStructure = {"model": [], "node number": [],
                            "problem": [], "iteration": [], "distance": [],
                            "optimal distance": [], "gap": [], "temperature": [], "population size": [], "variance": []}
-        variance = DataManager.getGenerationVariance(populationDistances = [x[1] for x in population])
         #####
         for generation in range(1, MAX_GENERATIONS + 1):
+            variance = DataManager.getGenerationVariance(populationDistances = [x[1] for x in population])
             ############################################################ temporary csv storage:
             iterationsDataStructure["model"].append("gemini-2.0-flash-thinking-exp")
             iterationsDataStructure["node number"].append(NODE_COUNT)
@@ -61,6 +62,7 @@ class TinderMatchingSolver(LLMTSPSolver):
             iterationsDataStructure["gap"].append(DataManager.getOptimalityGap(bestSolutionLength, problem_optimal_distance))
             iterationsDataStructure["temperature"].append(currentModelTemperature)
             iterationsDataStructure["population size"].append(populationSize)
+            iterationsDataStructure["variance"].append(variance)
             ############################################################ 
             
             print(f"""
@@ -72,7 +74,7 @@ class TinderMatchingSolver(LLMTSPSolver):
                 """)
             if population[-1][1] == problem_optimal_distance:
                 ############################################################
-                pd.DataFrame(iterationsDataStructure).to_csv("clu_10_2.csv")
+                pd.DataFrame(iterationsDataStructure).to_csv(iterationPath)
                 ############################################################
                 return population[-1][0], generation
 
@@ -131,12 +133,12 @@ class TinderMatchingSolver(LLMTSPSolver):
                   """)        
             bestSolutionLength = population[-1][1] if  population[-1][1] < bestSolutionLength else bestSolutionLength
             ############################################################
-            variance = DataManager.getGenerationVariance(populationDistances = [x[1] for x in population])
+            
             ############################################################
         # if the optimal distance is not reached, return the best tour and the generation number
         
         ############################################################ temporary csv storage:
-        pd.DataFrame(iterationsDataStructure).to_csv("clu_10_2.csv")
+        pd.DataFrame(iterationsDataStructure).to_csv(iterationPath)
         ############################################################ 
         
         return population[-1][0], MAX_GENERATIONS
