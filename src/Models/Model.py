@@ -8,9 +8,10 @@ class Model:
     to facilitate easy swapping of LLMs
     """
 
-    def __init__(self, system_prompt: str, temperature: float):
+    def __init__(self, system_prompt: str, temperature: float, modelName: str):
         self.system_prompt = system_prompt
         self.temperature = temperature
+        self.modelName = modelName
 
     @abstractmethod
     def run(self, prompt: str) -> str:

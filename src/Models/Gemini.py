@@ -7,15 +7,17 @@ import time
 
 from src.PromptResponseManager.PromptResponseManager import PromptResponseManager as PRManager
 
+
 class Gemini(Model):
     """
        Example concrete implementation of the Model class 
     """
 
     def __init__(self, systemPrompt: str, temperature: float, modelName="gemini-2.0-flash-thinking-exp-1219"):
-        super().__init__(systemPrompt, temperature)
+        super().__init__(systemPrompt, temperature, modelName)
 
         # Load environment variables
+        self.systemPrompt = None
         self.client = None
         self.generationConfig = None
         load_dotenv()
@@ -42,17 +44,17 @@ class Gemini(Model):
         )
 
     def run(self, prompt: str, nodeCount: int) -> str:
-        
+
         while True:
             try:
                 response = self.client.generate_content(prompt).candidates[0]
-                
+
                 # test if the response is parseable
-                PRManager.parseNewGeneration(response, nodeCount = nodeCount)
+                PRManager.parseNewGeneration(response, nodeCount=nodeCount)
                 return response.content.parts[1].text
             except Exception as e:
                 print(f"Error while making the Model's call: {e}")
-                time.sleep(0.5) # Sleep for 500ms before retrying
+                time.sleep(0.5)  # Sleep for 500ms before retrying
                 continue
 
     def set_temperature(self, temperature: float):
