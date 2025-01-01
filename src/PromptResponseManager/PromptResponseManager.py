@@ -270,8 +270,7 @@ class PromptResponseManager:
 
     @staticmethod
     def validateTrace(trace: list[int], nodeCount: int) -> bool:
-        return (len(trace) == nodeCount) and (len(set(trace)) == nodeCount) and all(
-            point in range(1, nodeCount + 1) for point in trace)
+        return (len(trace) == nodeCount) and (len(set(trace)) == nodeCount) and all(point in range(1, nodeCount + 1) for point in trace)
 
     @staticmethod
     def fixTrace(trace: list[int], nodeCount: int) -> list[int]:
@@ -283,4 +282,6 @@ class PromptResponseManager:
         random.shuffle(unavailablePoints)
         # add the shuffled unavailable points to the trace
         trace.extend(unavailablePoints)
+        # remove the points that are not in the range of 1 to nodeCount
+        trace = [point for point in trace if point in range(1, nodeCount + 1)]
         return trace
