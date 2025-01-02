@@ -54,10 +54,14 @@ class TinderMatchingSolver(LLMTSPSolver):
                                             currentModelTemperature, variance,
                                             populationSize, optimalityGap)
 
+            """ Log Generation Data """
             expDataManager.logGenerationStatus(bestSolutionLength, generation,
                                                currentModelTemperature, populationSize)
 
+            """ Exit if reached optimal distance """
             if currentPopulation[-1][1] == problem_optimal_distance:
+                expDataManager.saveSolution(currentPopulation[-1][0], bestSolutionLength, problem_optimal_distance,
+                                            optimalityGap, generation)
                 return currentPopulation[-1][0], generation
 
             """
