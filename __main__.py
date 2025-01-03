@@ -25,7 +25,7 @@ def get_experiment_inputs():
     solvers = ["TinderMatching"]
     solver_name = select_option(solvers, "Select the solver to use:")
 
-    models = ["gemini-2.0-flash-thinking-exp-1219"]
+    models = ["gemini-2.0-flash-thinking-exp-1219", "gemini-2.0-flash-exp"]
     model_name = select_option(models, "Select the model to use:")
 
     population_initializers = ["simulated-annealing", "random"]
@@ -42,7 +42,14 @@ def get_experiment_inputs():
 
 
 def initialize_experiment(inputs):
-    # Initialize population initializer
+    """ Sets Experiment up based on given inputs """
+
+    """ Can be refactored using Factory pattern but 
+        for simplicity, we settled for current approach,
+        if same logic is needed elsewhere, this should
+        be refactored. """
+
+    """ Initialize population initializer """
     if inputs['population_initializer_name'] == "simulated-annealing":
         population_initializer = SAInitializer()
     elif inputs['population_initializer_name'] == "random":
@@ -50,13 +57,15 @@ def initialize_experiment(inputs):
     else:
         raise Exception("Population initializer not found.")
 
-    # Initialize model
+    """ Initialize model """
     if inputs['model_name'] == "gemini-2.0-flash-thinking-exp-1219":
+        model = Gemini("system_prompt", 1, inputs['model_name'])
+    elif inputs['model_name'] == "gemini-2.0-flash-exp":
         model = Gemini("system_prompt", 1, inputs['model_name'])
     else:
         raise Exception("Model not found")
 
-    # Initialize solver
+    """ Initialize solver"""
     if inputs['solver_name'] == "TinderMatching":
         solver = TinderMatchingSolver(model, population_initializer)
     else:

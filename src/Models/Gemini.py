@@ -49,7 +49,11 @@ class Gemini(Model):
         errors = 0
         while True:
             try:
-                response = self.client.generate_content(prompt).candidates[0].content.parts[1].text
+                if self.modelName.__contains__("thinking"):
+                    response = self.client.generate_content(prompt).candidates[0].content.parts[1].text
+                else:
+                    response = self.client.generate_content(prompt).candidates[0].content.parts[0].text
+
                 return response
             except Exception as e:
                 print(f"Error while making the Model's call: {e}")
