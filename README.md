@@ -57,7 +57,8 @@ Enter the number of your choice: *Solver_Number*
 9. Select the Large Language Model you want to use (only Gemini is implemented so far)
 ```zsh
 Select the model to use:
-1. gemini-2.0-flash-exp
+1. gemini-2.0-flash-thinking-exp-1219
+2. gemini-2.0-flash-exp
 Enter the number of your choice: *Model_Number*
 ```
 10. Select which Population Initializer you want to use (only Random and Simulated Annealing Initializers are implemented so far)
