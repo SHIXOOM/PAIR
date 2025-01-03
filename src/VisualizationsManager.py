@@ -3,65 +3,78 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import os
 from pathlib import Path
+import os
 from typing import List, Tuple
 
 
 class VisualizationsManager:
+    DATA_DIR = Path(__file__).parent.parent / "data"
+
     @staticmethod
-    def findExperimentFiles(dataDir: str) -> List[Tuple[str, str]]:
+    def findExperimentFiles(dataDir: str | Path) -> List[Tuple[Path, Path]]:
         """Find all iteration CSV files and generate their save paths"""
         results = []
-        data_path = Path(dataDir)
+        data_path = Path(dataDir).resolve()  # Get absolute path
+
+        if not data_path.exists():
+            raise FileNotFoundError(f"Data directory not found: {data_path}")
 
         for problem_dir in data_path.glob("*"):
             if problem_dir.is_dir():
                 for csv_file in problem_dir.glob("*_iterations.csv"):
                     # Create visualization subdirectory for this problem
                     vis_dir = problem_dir / "visualizations"
-                    vis_dir.mkdir(exist_ok=True)
+                    vis_dir.mkdir(parents=True, exist_ok=True)
 
-                    # Extract experiment identifier from filename
-                    exp_id = csv_file.stem.replace('_iterations', '')
-
-                    # Create tuple of (csv_path, save_dir)
-                    results.append((str(csv_file), str(vis_dir)))
+                    # Return Path objects instead of strings
+                    results.append((csv_file, vis_dir))
 
         return results
 
     @staticmethod
-    def generateSavePath(visDir: str, expId: str, plotType: str) -> str:
+    def generateSavePath(visDir: str | Path, expId: str, plotType: str) -> Path:
         """Generate save path for a visualization"""
-        return str(Path(visDir) / f"{expId}_{plotType}.svg")
+        return Path(visDir) / f"{expId}_{plotType}.svg"
 
     @staticmethod
-    def visualizeAllExperiments(dataDir: str):
+    def visualizeAllExperiments(dataDir: str | Path = None):
         """Process all experiments in the data directory"""
-        experiment_files = VisualizationsManager.findExperimentFiles(dataDir)
+        # Use default DATA_DIR if no directory is specified
+        data_dir = Path(dataDir) if dataDir else VisualizationsManager.DATA_DIR
+        
+        try:
+            experiment_files = VisualizationsManager.findExperimentFiles(data_dir)
+            
+            if not experiment_files:
+                print(f"No experiment files found in {data_dir}")
+                return
 
-        for csv_path, vis_dir in experiment_files:
-            try:
-                # Extract experiment ID from the CSV filename
-                exp_id = Path(csv_path).stem.replace('_iterations', '')
+            for csv_path, vis_dir in experiment_files:
+                try:
+                    # Extract experiment ID from the CSV filename
+                    exp_id = csv_path.stem.replace('_iterations', '')
 
-                # Generate save paths for each plot type
-                gap_save_path = VisualizationsManager.generateSavePath(vis_dir, exp_id, "gap")
-                var_save_path = VisualizationsManager.generateSavePath(vis_dir, exp_id, "variance")
-                temp_save_path = VisualizationsManager.generateSavePath(vis_dir, exp_id, "temperature")
-                var_temp_save_path = VisualizationsManager.generateSavePath(vis_dir, exp_id, "variance_temperature")
+                    # Generate save paths for each plot type
+                    gap_save_path = VisualizationsManager.generateSavePath(vis_dir, exp_id, "gap")
+                    var_save_path = VisualizationsManager.generateSavePath(vis_dir, exp_id, "variance")
+                    temp_save_path = VisualizationsManager.generateSavePath(vis_dir, exp_id, "temperature")
+                    var_temp_save_path = VisualizationsManager.generateSavePath(vis_dir, exp_id, "variance_temperature")
 
-                # Generate all visualizations
-                VisualizationsManager.plotOptimalityGapConvergence(csv_path, gap_save_path)
-                VisualizationsManager.plotVariance(csv_path, var_save_path)
-                VisualizationsManager.plotAdaptiveTemperature(csv_path, temp_save_path)
-                VisualizationsManager.plotVarianceTemperature(csv_path, var_temp_save_path)
+                    # Generate all visualizations with str paths
+                    VisualizationsManager.plotOptimalityGapConvergence(str(csv_path), str(gap_save_path))
+                    VisualizationsManager.plotVariance(str(csv_path), str(var_save_path))
+                    VisualizationsManager.plotAdaptiveTemperature(str(csv_path), str(temp_save_path))
+                    VisualizationsManager.plotVarianceTemperature(str(csv_path), str(var_temp_save_path))
 
-                print(f"Successfully processed experiment: {exp_id}")
+                    print(f"Successfully processed experiment: {exp_id}")
 
-            except Exception as e:
-                print(f"Error processing {csv_path}: {str(e)}")
-                continue
+                except Exception as e:
+                    print(f"Error processing {csv_path}: {str(e)}")
+                    continue
+
+        except Exception as e:
+            print(f"Error accessing data directory {data_dir}: {str(e)}")
 
     @staticmethod
     def plotOptimalityGapConvergence(loadPath: str, savePath: str):
@@ -408,4 +421,6 @@ class VisualizationsManager:
         data = data.drop(labels=data.columns[0], axis=1)
         return data
 
-VisualizationsManager.visualizeAllExperiments(R"data")
+
+if __name__ == "__main__":
+    VisualizationsManager.visualizeAllExperiments()
