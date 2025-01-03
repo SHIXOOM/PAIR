@@ -408,4 +408,4 @@ class VisualizationsManager:
         data = data.drop(labels=data.columns[0], axis=1)
         return data
 
-VisualizationsManager.visualizeAllExperiments(R"C:\Users\MAHMOUD\Desktop\Workkk\2024\12. December\LLMsGA\data")
+VisualizationsManager.visualizeAllExperiments(R"data")
