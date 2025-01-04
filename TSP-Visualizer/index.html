@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>TSP Visualizer</title>
+		<link rel="stylesheet" href="main.css" />
+	</head>
+	<body>
+		<div class="container">
+			<div class="controls-panel">
+				<h2>TSP Visualizer</h2>
+				<div class="theme-selectors">
+					<div
+						class="theme-circle active"
+						data-theme="blue"
+						style="background: #007bff; border-color: #333"></div>
+					<div class="theme-circle" data-theme="red" style="background: #dc3545"></div>
+					<div class="theme-circle" data-theme="dark" style="background: #2c3e50"></div>
+				</div>
+				<div class="controls">
+					<button id="startPauseBtn" class="control-btn">Start</button>
+					<div class="speed-control">
+						<label for="speedSlider">Speed:</label>
+						<input type="range" id="speedSlider" min="1" max="100" value="67" />
+					</div>
+				</div>
+			</div>
+			<canvas id="tspCanvas"></canvas>
+		</div>
+		<script type="module" src="js/main.js"></script>
+	</body>
+</html>
