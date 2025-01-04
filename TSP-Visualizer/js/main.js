@@ -37,7 +37,9 @@ class TSPVisualizer {
 
 	async handleStartPause() {
 		if (this.dataManager.generationsData.length === 0) {
-			let fileName = prompt("Enter the JSON data file name (without extension):");
+			let fileName = prompt(
+				"Enter the JSON data file name (without extension):\n Leave empty for default experiment data"
+			);
 			if (!fileName) {
 				fileName = "clu_20_1";
 			}
@@ -53,6 +55,7 @@ class TSPVisualizer {
 			this.infoPanel = new InfoPanel(this.graph.ctx, this.themeManager);
 			this.animator = new Animator(this.graph, this.infoPanel, this.dataManager);
 
+			document.getElementById("startPauseBtn").textContent = "Pause";
 			this.graph.draw();
 			this.animator.animate(0);
 		} else {
