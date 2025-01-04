@@ -71,3 +71,30 @@ Enter the number of your choice: *Population_Initializer_Number*
 
 The Experiment should run now, you can find the run's results in /data folder.
 If any errors happened with the LLM during the run, the code will retry several times and if fails again will ask if you want to try again or terminate.
+
+# Running Visualizations Manager
+
+To generate graphs for the experiments data, run the Visualizations Manager:
+
+1. Move to your LLMsGA directory in the terminal:
+```zsh
+cd LLMsGA
+```
+2. Run the Visualizations Manager:
+```zsh
+python src/VisualizationsManager.py
+```
+
+# Running TSP Visualizer
+
+To visualize the behavior of Genetic Algorithms in solving TSP, follow these steps:
+
+1. Ensure you have the parsed JSON data from the experiments. You can generate this using the `parser.py` script:
+```zsh
+python TSP-Visualizer/parser.py
+```
+2. Open the `index.html` file using a web server to start the TSP Visualizer frontend.
+
+
+![tsp-vis-start](https://github.com/user-attachments/assets/0c936a60-9a56-4eae-a73b-b097d8d37bf9)
+
