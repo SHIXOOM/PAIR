@@ -13,7 +13,7 @@ export class DataManager {
 		this.generationsData = data;
 		this.totalGenerations = this.generationsData.length;
 		// Extract number of nodes
-		this.numNodes = this.generationsData[-1].population[0][0].length;
+		this.numNodes = this.generationsData[0].population[0][0].length;
 	}
 
 	updateBestSolution(solution, path) {
