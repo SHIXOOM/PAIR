@@ -1,0 +1,88 @@
+body {
+	margin: 0;
+	padding: 20px;
+	font-family: Arial, sans-serif;
+	background-color: #f0f0f0;
+}
+
+.container {
+	display: flex;
+	flex-direction: row-reverse;
+	gap: 10px;
+	max-width: none;
+	margin: 0 20px;
+}
+
+.controls-panel {
+	background: white;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	/* Fixed width for right panel */
+	width: 200px;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+}
+
+canvas {
+	background: white;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	/* Take remaining space */
+	flex-grow: 1;
+	height: calc(100vh - 40px);
+}
+
+.controls {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+button {
+	padding: 8px 16px;
+	border: none;
+	border-radius: 4px;
+	background: #007bff;
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+button:hover {
+	background: #0056b3;
+}
+
+input[type="number"] {
+	width: 80px;
+	padding: 4px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.theme-selectors {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.theme-circle {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	cursor: pointer;
+	border: 2px solid transparent;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.theme-circle:hover {
+	transform: scale(1.1);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.theme-circle.active {
+	border: 2px solid #333;
+	transform: scale(1.1);
+}
