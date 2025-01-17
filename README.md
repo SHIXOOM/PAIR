@@ -1,5 +1,7 @@
-# LLMxGeneticAlgorithms: Tinder-Based Matching
-## Trying out Genetic Algorithms using Large Language Models to control evolutionary operations
+# PAIR: A Novel Large Language Model-Guided Selection Strategy for Evolutionary Algorithms  
+This is the implementation for the experiments ran for PAIR research paper  
+-We facilitated the design and implementation for this code to make all experiments easily repeatable and transparent
+## Utilizing LLMs in Evolutionary Algorithms as Evolutionary Optimizers and to imitate human-based selection (PAIR-Driven Selection)
 Our main tests and experiments are on the *Travelling Salesman Problem* using *TSPLIB95* and *PyConcorde* Libraries to generate problems and find their optimal solutions.  
 All problems are on a **2-D Euclidean plane**.  
 
