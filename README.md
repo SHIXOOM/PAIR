@@ -1,5 +1,5 @@
-# PAIR: A Novel Large Language Model-Guided Selection Strategy for Evolutionary Algorithms  
-This is the implementation for the experiments used for PAIR paper results section
+# [PAIR: A Novel Large Language Model-Guided Selection Strategy for Evolutionary Algorithms](https://arxiv.org/abs/2503.03239)  
+This is the implementation for the experiments used for [PAIR paper](https://arxiv.org/abs/2503.03239) results section
 -We facilitated the design and implementation for this code to make all experiments easily repeatable and transparent
 ## Utilizing LLMs in Evolutionary Algorithms as Evolutionary Optimizers and to imitate human-based selection (PAIR-Driven Selection)
 Our main tests and experiments are on the *Travelling Salesman Problem* using *TSPLIB95* and *PyConcorde* Libraries to generate problems and find their optimal solutions.  
